@@ -146,3 +146,33 @@ details.readme li { margin: 4px 0; }
 .light-learned { background: color-mix(in srgb, var(--green) 15%, transparent); }
 .light-learned .light-dot { background: var(--green); }
 .light-change { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin: 4px 0; }
+
+/* Dictionary */
+.search input, .typing input { width: 100%; }
+.search input { padding: 12px 14px; border-radius: 12px; border: 1px solid var(--border); background: var(--surface); color: var(--text); font-size: 1rem; }
+.suggestions { display: flex; flex-direction: column; padding: 6px; }
+.suggestion { text-align: left; padding: 10px; border: 0; background: none; border-radius: 8px; font-size: 1rem; }
+.suggestion:hover { background: var(--bg); }
+.word-entry { display: flex; flex-direction: column; gap: 8px; }
+.word-entry .lemma { margin: 0; }
+.route-senses { display: flex; flex-direction: column; gap: 6px; }
+.route-sense { display: flex; gap: 8px; align-items: flex-start; flex-wrap: wrap; }
+.route-sense .badge { margin: 0; }
+.dict-pos h3 { margin: 8px 0 2px; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--primary); }
+.dict-pos ol { margin: 0; padding-left: 22px; display: flex; flex-direction: column; gap: 6px; }
+.dict-example { color: var(--muted); }
+.dict-synonyms { color: var(--muted); }
+button.link { border: 0; background: none; padding: 0; color: var(--primary); text-decoration: underline; font: inherit; }
+.dict-links { display: flex; gap: 16px; flex-wrap: wrap; margin-top: 4px; }
+.dict-links a { color: var(--primary); }
+.credits { font-size: 0.8rem; text-align: center; }
+.tappable { cursor: pointer; border-radius: 4px; }
+.tappable:hover { background: color-mix(in srgb, var(--primary) 12%, transparent); }
+.sheet-backdrop { position: fixed; inset: 0; z-index: 20; background: rgb(0 0 0 / 0.4); display: flex; align-items: flex-end; justify-content: center; }
+.sheet { position: relative; width: 100%; max-width: 640px; max-height: 75dvh; overflow-y: auto; background: var(--surface); color: var(--text); border-radius: 20px 20px 0 0; padding: 20px 16px calc(20px + env(safe-area-inset-bottom)); font-size: 1rem; font-weight: 400; }
+.sheet-close { position: absolute; top: 12px; right: 12px; }
+.sheet-choices { display: flex; gap: 8px; margin-bottom: 8px; }
+.sheet-choices button { padding: 4px 12px; border-radius: 999px; border: 1px solid var(--border); background: var(--surface); }
+.sheet-choices button.active { background: var(--primary); color: var(--primary-text); border-color: var(--primary); }
+.tab { min-width: 0; }
+.tab span:last-child { font-size: 0.7rem; white-space: nowrap; }

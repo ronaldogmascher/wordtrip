@@ -56,8 +56,10 @@ I'm building this app with **AI-assisted development using [Claude Code](https:/
 
 ## Data sources and licenses
 
-Word data comes from open sources, credited here once they are integrated: WordNet (Princeton), Wiktionary (CC BY-SA), Tatoeba (CC BY 2.0 FR) and open frequency lists.
+- **Flashcard content** (definitions, example sentences, translations) is original, written for this project.
+- **Offline dictionary**: [WordNet 3.1](https://wordnet.princeton.edu/), © Princeton University, used under the [WordNet License](https://wordnet.princeton.edu/license-and-commercial-use). It is generated at build time from the `wordnet-db` npm package (`scripts/build-dictionary.mjs`) and downloaded by the app on demand.
+- **Wiktionary** is linked (online only), not copied.
 
 ## License
 
-Code: [MIT](LICENSE). Word data: CC BY-SA 4.0, as required by its sources.
+Code: [MIT](LICENSE). Original flashcard content: CC BY-SA 4.0. WordNet data keeps its own license (see above).
