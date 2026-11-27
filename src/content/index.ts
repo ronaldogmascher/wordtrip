@@ -8,9 +8,12 @@ import { phase06 } from './en/phases/06-lencois.ts'
 import { phase07 } from './en/phases/07-noronha.ts'
 import { phase08 } from './en/phases/08-manaus.ts'
 import { phase09 } from './en/phases/09-pantanal.ts'
+import { phase10 } from './en/phases/10-bonito.ts'
+import { phase11 } from './en/phases/11-balneario.ts'
+import { phase12 } from './en/phases/12-foz.ts'
 import type { Phase, Sense } from './types.ts'
 
-export const phases: Phase[] = [phase01, phase02, phase03, phase04, phase05, phase06, phase07, phase08, phase09]
+export const phases: Phase[] = [phase01, phase02, phase03, phase04, phase05, phase06, phase07, phase08, phase09, phase10, phase11, phase12]
 export const cities = citiesA1
 
 const senseById = new Map<string, Sense>()
