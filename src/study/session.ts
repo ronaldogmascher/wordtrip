@@ -2,6 +2,7 @@ import { State } from 'ts-fsrs'
 import { allSenses, phases } from '../content/index.ts'
 import type { Sense } from '../content/types.ts'
 import { db, getSettings, type ReviewEntry, type StudyCard } from '../db/db.ts'
+import { DETOUR_NEW_PER_SESSION } from '../detour/detour.ts'
 import { explorerSenses } from '../explorer/explorer.ts'
 import { newStudyCard, retrievability } from './scheduler.ts'
 
@@ -53,8 +54,9 @@ export interface NewSense {
 export async function unseenSenses(): Promise<NewSense[]> {
   const seen = new Set(await db.cards.toCollection().primaryKeys())
   const isUnseen = (s: Sense) => !seen.has(`${s.id}#meaning`)
+  // Words imported from a text ("Desvio") are trained in that detour's own sessions.
   const explorer: NewSense[] = (await explorerSenses())
-    .filter(({ sense }) => isUnseen(sense))
+    .filter(({ entry, sense }) => entry.detourId === undefined && isUnseen(sense))
     .map(({ sense }) => ({ sense, source: 'explorer' }))
   const early = new Set(explorer.map((e) => e.sense.id))
   // Phase unlocking (boss battles) comes later; for now every shipped phase is open.
@@ -94,10 +96,28 @@ export async function dayPlan(now: Date): Promise<DayPlan> {
   return { reviewsDue: reviews.length, newToday, newRemaining, recovery, estimatedMinutes }
 }
 
-export type SessionKind = 'mixed' | 'reviews' | 'new'
+export type SessionKind = 'mixed' | 'reviews' | 'new' | 'detour'
+
+/** A detour's session: its due reviews, then up to DETOUR_NEW_PER_SESSION new words. */
+async function buildDetourQueue(detourId: number, now: Date): Promise<QueueItem[]> {
+  const items = (await explorerSenses()).filter(({ entry }) => entry.detourId === detourId)
+  const ids = new Set(items.map((i) => i.sense.id))
+  const reviews: QueueItem[] = []
+  for (const card of await dueReviews(now)) {
+    const item = items.find((i) => i.sense.id === card.senseId)
+    if (item) reviews.push({ card, sense: item.sense, isNew: false })
+  }
+  const seen = new Set((await db.cards.where('senseId').anyOf([...ids]).toArray()).map((c) => c.senseId))
+  const fresh: QueueItem[] = items
+    .filter((i) => !seen.has(i.sense.id))
+    .slice(0, DETOUR_NEW_PER_SESSION)
+    .map(({ sense }) => ({ card: newStudyCard(sense.id, 'explorer', now), sense, isNew: true }))
+  return [...reviews, ...fresh]
+}
 
 /** Builds the queue for a session. Cards for new senses are created only when answered. */
-export async function buildQueue(kind: SessionKind, now: Date): Promise<QueueItem[]> {
+export async function buildQueue(kind: SessionKind, now: Date, detourId?: number): Promise<QueueItem[]> {
+  if (kind === 'detour') return detourId === undefined ? [] : buildDetourQueue(detourId, now)
   const plan = await dayPlan(now)
   const reviews = kind === 'new' ? [] : await dueReviews(now)
   const newSenses = kind === 'reviews' ? [] : (await unseenSenses()).slice(0, plan.newRemaining)

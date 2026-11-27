@@ -192,3 +192,11 @@ button.primary.inline { margin-top: 0; }
 .sense-option .badge { margin: 0; }
 .sense-option.disabled { opacity: 0.6; }
 .road-found { background: color-mix(in srgb, var(--primary) 8%, transparent); border-radius: 12px; padding: 10px; margin-bottom: 8px; }
+.funnel p { margin: 4px 0; }
+.light-text.learned { color: var(--green); font-weight: 600; }
+.light-text.learning { color: var(--yellow); font-weight: 600; }
+.row-between { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; flex-wrap: wrap; }
+.sense-option.bare { border-top: 0; padding: 0; }
+.sense-option .badge { margin-left: 6px; }
+.file-button { cursor: pointer; }
+.eyebrow { color: var(--primary); font-weight: 600; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em; margin: 0; }

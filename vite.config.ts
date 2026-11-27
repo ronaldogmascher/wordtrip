@@ -31,7 +31,7 @@ export default defineConfig({
       workbox: {
         globPatterns: ['**/*.{js,css,html,svg,png,json,woff2}'],
         // The dictionary (~16 MB) is downloaded on demand and cached by the app itself.
-        globIgnores: ['data/**'],
+        globIgnores: ['data/**', '**/pdf*'],
         navigateFallback: 'index.html',
       },
     }),

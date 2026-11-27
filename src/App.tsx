@@ -1,5 +1,7 @@
 import { NavLink, Route, Routes } from 'react-router-dom'
 import Dictionary from './screens/Dictionary.tsx'
+import DetourNew from './screens/DetourNew.tsx'
+import DetourView from './screens/DetourView.tsx'
 import ExplorerForm from './screens/ExplorerForm.tsx'
 import Home from './screens/Home.tsx'
 import Journal from './screens/Journal.tsx'
@@ -26,6 +28,8 @@ export default function App() {
           <Route path="/mapa" element={<Placeholder title="Mapa da jornada" text="De Santo André a Nova York. As 12 cidades do Brasil chegam em breve." />} />
           <Route path="/diario" element={<Journal />} />
           <Route path="/diario/completar/:id" element={<ExplorerForm />} />
+          <Route path="/diario/desvio/novo" element={<DetourNew />} />
+          <Route path="/diario/desvio/:id" element={<DetourView />} />
           <Route path="/painel" element={<Placeholder title="Painel" text="Sua evolução: palavras aprendidas, mais difíceis e tempo de estudo." />} />
           <Route path="/dicionario" element={<Dictionary />} />
           <Route path="/dicionario/:word" element={<Dictionary />} />

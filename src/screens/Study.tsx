@@ -33,15 +33,16 @@ const POS_PT: Record<Sense['pos'], string> = {
 export default function Study() {
   const [params] = useSearchParams()
   const kind = (params.get('tipo') as SessionKind) ?? 'mixed'
+  const detourId = params.get('desvio') ? Number(params.get('desvio')) : undefined
   const [queue, setQueue] = useState<QueueItem[] | null>(null)
   const [index, setIndex] = useState(0)
   const [xp, setXp] = useState(0)
   const [accent, setAccent] = useState<Accent>('US')
 
   useEffect(() => {
-    void buildQueue(kind, new Date()).then(setQueue)
+    void buildQueue(kind, new Date(), detourId).then(setQueue)
     void getSettings().then((s) => setAccent(s.accent))
-  }, [kind])
+  }, [kind, detourId])
 
   const done = queue !== null && index >= queue.length
   useActiveTime(queue !== null && !done)

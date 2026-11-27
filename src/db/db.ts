@@ -108,6 +108,17 @@ export interface ExplorerEntry {
   senseId?: string
   /** Set for words that are not in the app's content. */
   custom?: ExplorerWord
+  /** Set for words imported from a text ("Desvio"); they are trained in that detour's sessions. */
+  detourId?: number
+  createdAt: Date
+}
+
+/** "Desvio": a text the learner imported, named like a place they visited off the route. */
+export interface Detour {
+  id?: number
+  name: string
+  /** Number of words in the imported text. */
+  textWords: number
   createdAt: Date
 }
 
@@ -144,6 +155,7 @@ export class WordTripDB extends Dexie {
   days!: EntityTable<StudyDay, 'date'>
   rewards!: EntityTable<Reward, 'phaseId'>
   bossAttempts!: EntityTable<BossAttempt, 'id'>
+  detours!: EntityTable<Detour, 'id'>
 
   constructor(name = 'wordtrip') {
     super(name)
@@ -156,6 +168,10 @@ export class WordTripDB extends Dexie {
       days: 'date',
       rewards: 'phaseId',
       bossAttempts: '++id, phaseId, at',
+    })
+    this.version(2).stores({
+      explorer: '++id, status, word, createdAt, detourId',
+      detours: '++id, createdAt',
     })
   }
 }
