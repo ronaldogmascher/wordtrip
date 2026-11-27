@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { playCorrect, playWrong } from '../audio/effects.ts'
 import { getSettings, type Accent } from '../db/db.ts'
-import { CATEGORIES, LEVELS, makeSession, type Category, type Exercise, type Level } from '../numbers/exercises.ts'
+import { CATEGORIES, LEVELS, makeSession, maskTime, type Category, type Exercise, type Level } from '../numbers/exercises.ts'
 import { checkAnswer } from '../study/answer.ts'
 import { canSpeak, speak } from '../study/speech.ts'
 
@@ -146,12 +146,13 @@ function Question({ exercise, accent, soundEffects, onNext }: {
         <form className="typing" onSubmit={(e) => { e.preventDefault(); submit(typed) }}>
           <input
             autoFocus
-            // Times need ":" and prices "." or ",", which some phone number pads don't have.
-            inputMode={exercise.category === 'times' ? 'text' : exercise.category === 'prices' ? 'decimal' : 'numeric'}
+            // Times use a 00:00 mask, so the number pad is enough; prices need "." or ",".
+            inputMode={exercise.category === 'prices' ? 'decimal' : 'numeric'}
             autoComplete="off"
+            className={exercise.category === 'times' ? 'time-input' : undefined}
             value={typed}
-            onChange={(e) => setTyped(e.target.value)}
-            placeholder={exercise.category === 'times' ? 'ex.: 7:45 (ou 745)' : 'Sua resposta'}
+            onChange={(e) => setTyped(exercise.category === 'times' ? maskTime(e.target.value) : e.target.value)}
+            placeholder={exercise.category === 'times' ? '00:00' : 'Sua resposta'}
             aria-label="Sua resposta"
           />
           <button className="primary" type="submit">Responder</button>

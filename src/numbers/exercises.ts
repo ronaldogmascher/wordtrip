@@ -113,7 +113,7 @@ function timeQuestion(rng: Rng, level: Level): Exercise {
   if (rng() < 0.5) {
     const said = rng() < 0.5 ? digital : traditional
     return {
-      category: 'times', instruction: 'Ouça e digite a hora (ex.: 7:45 ou 745).', shown: '', speech: `It's ${said}.`,
+      category: 'times', instruction: 'Ouça e digite a hora.', shown: '', speech: `It's ${said}.`,
       mode: 'type', answer: shown, check: (t) => digitsOnly(t).replace(/^0/, '') === digitsOnly(shown), words: both,
       tip: 'Em inglês, "half past seven" = 7:30 e "a quarter to eight" = 7:45.',
     }
@@ -213,4 +213,15 @@ export function makeExercise(category: Category, level: Level, uk: boolean, rng:
 export function makeSession(categories: Category[], level: Level, uk: boolean, count = 10, rng: Rng = Math.random): Exercise[] {
   return Array.from({ length: count }, (_, i) => makeExercise(categories[i % categories.length], level, uk, rng))
     .sort(() => rng() - 0.5)
+}
+
+/**
+ * Formats typed digits as a clock, filling from the right like a cash machine:
+ * "7" → "00:07", "745" → "07:45", "1230" → "12:30". Extra digits are ignored.
+ */
+export function maskTime(typed: string): string {
+  const digits = typed.replace(/\D/g, '').replace(/^0+/, '').slice(0, 4)
+  if (!digits) return ''
+  const padded = digits.padStart(4, '0')
+  return `${padded.slice(0, 2)}:${padded.slice(2)}`
 }

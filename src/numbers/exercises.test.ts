@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { CATEGORIES, makeExercise, makeSession, parsePrice, type Level } from './exercises.ts'
+import { CATEGORIES, makeExercise, makeSession, maskTime, parsePrice, type Level } from './exercises.ts'
 
 // Small deterministic random generator so the tests are repeatable.
 function seeded(seed: number) {
@@ -35,5 +35,25 @@ describe('exercises', () => {
 
   it('builds a session of the requested size', () => {
     expect(makeSession(['times', 'prices'], 2, false, 10, rng)).toHaveLength(10)
+  })
+})
+
+describe('maskTime', () => {
+  it('fills the clock from the right as digits are typed', () => {
+    expect(maskTime('')).toBe('')
+    expect(maskTime('7')).toBe('00:07')
+    expect(maskTime('74')).toBe('00:74')
+    expect(maskTime('745')).toBe('07:45')
+    expect(maskTime('1230')).toBe('12:30')
+  })
+  it('handles editing the masked value', () => {
+    expect(maskTime('12:305')).toBe('12:30') // a 5th digit is ignored
+    expect(maskTime('07:4')).toBe('00:74') // backspace
+    expect(maskTime('00:0')).toBe('')
+  })
+  it('produces answers the times exercise accepts', () => {
+    const typed = makeSession(['times'], 1, false, 40).filter((e) => e.mode === 'type')
+    expect(typed.length).toBeGreaterThan(0)
+    for (const ex of typed) expect(ex.check!(maskTime(ex.answer.replace(/\D/g, '')))).toBe(true)
   })
 })

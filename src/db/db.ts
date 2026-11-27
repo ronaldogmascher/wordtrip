@@ -1,5 +1,6 @@
 import Dexie, { type EntityTable } from 'dexie'
 import type { Card as FsrsCard } from 'ts-fsrs'
+import { DEFAULT_MUSIC_THEME, type MusicThemeId } from '../audio/music.ts'
 import type { GapSentence, PartOfSpeech } from '../content/types.ts'
 
 // Everything the learner produces lives here, in the browser's IndexedDB.
@@ -34,6 +35,8 @@ export interface Settings {
   soundEffects: boolean
   /** Background music on the home screen. */
   backgroundMusic: boolean
+  /** Which synthesized theme plays on the home screen. */
+  musicTheme: MusicThemeId
 }
 
 export const DEFAULT_SETTINGS: Settings = {
@@ -46,6 +49,7 @@ export const DEFAULT_SETTINGS: Settings = {
   recoveryActive: false,
   soundEffects: true,
   backgroundMusic: true,
+  musicTheme: DEFAULT_MUSIC_THEME,
 }
 
 /** How a sense is answered: multiple choice first, typing once it is mastered. */
