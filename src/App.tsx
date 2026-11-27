@@ -4,6 +4,7 @@ import DetourNew from './screens/DetourNew.tsx'
 import DetourView from './screens/DetourView.tsx'
 import ExplorerForm from './screens/ExplorerForm.tsx'
 import Home from './screens/Home.tsx'
+import Ipa from './screens/Ipa.tsx'
 import Journal from './screens/Journal.tsx'
 import Numbers from './screens/Numbers.tsx'
 import Placeholder from './screens/Placeholder.tsx'
@@ -35,6 +36,7 @@ export default function App() {
           <Route path="/dicionario" element={<Dictionary />} />
           <Route path="/dicionario/:word" element={<Dictionary />} />
           <Route path="/numeros" element={<Numbers />} />
+          <Route path="/ipa" element={<Ipa />} />
           <Route path="/ajustes" element={<Settings />} />
         </Routes>
       </main>
