@@ -200,3 +200,4 @@ button.primary.inline { margin-top: 0; }
 .sense-option .badge { margin-left: 6px; }
 .file-button { cursor: pointer; }
 .eyebrow { color: var(--primary); font-weight: 600; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em; margin: 0; }
+.lookup-icon { font-size: 0.8em; opacity: 0.6; }

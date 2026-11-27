@@ -3,6 +3,7 @@ import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { getPhaseOfSense, getSensesByLemma } from '../content/index.ts'
 import { db } from '../db/db.ts'
+import { functionWord } from '../dictionary/functionWords.ts'
 import { POS_LABEL, wiktionaryUrl, type Dictionary } from '../dictionary/dictionary.ts'
 import { captureWord } from '../explorer/explorer.ts'
 import { lightOf } from '../study/scheduler.ts'
@@ -25,6 +26,7 @@ export default function WordEntry({ dict, lemma, compact = false, onWord }: Prop
     [lemma],
   )
   const senses = dict.lookup(lemma)
+  const grammar = functionWord(lemma)
   const navigate = useNavigate()
   const [saved, setSaved] = useState(false)
 
@@ -62,7 +64,14 @@ export default function WordEntry({ dict, lemma, compact = false, onWord }: Prop
         </div>
       )}
 
-      {senses.length === 0 && <p className="muted">Essa palavra não está no dicionário offline.</p>}
+      {grammar && (
+        <section className="dict-pos">
+          <h3>{grammar.kind}</h3>
+          <p><strong>{grammar.pt}</strong> · {grammar.definition}</p>
+          <p className="dict-example">"{grammar.example}"</p>
+        </section>
+      )}
+      {senses.length === 0 && !grammar && <p className="muted">Essa palavra não está no dicionário offline.</p>}
       {posOrder.map((pos) => {
         const list = senses.filter((s) => s.pos === pos)
         if (list.length === 0) return null
