@@ -1,17 +1,20 @@
 import { useLiveQuery } from 'dexie-react-hooks'
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import LightBadge from '../components/LightBadge.tsx'
-import { getPhaseOfSense } from '../content/index.ts'
+import EntryRow from '../components/EntryRow.tsx'
 import { db, type ExplorerEntry } from '../db/db.ts'
-import { captureWord, deleteEntry, explorerSenseId, senseOfEntry } from '../explorer/explorer.ts'
+import { captureWord, deleteEntry, explorerSenseId } from '../explorer/explorer.ts'
 import { lightOf } from '../study/scheduler.ts'
 
 /** "Diário de bordo": words the learner found on their own (Explorer mode). */
 export default function Journal() {
   const navigate = useNavigate()
   const inbox = useLiveQuery(() => db.explorer.where('status').equals('inbox').reverse().sortBy('createdAt'))
-  const ready = useLiveQuery(() => db.explorer.where('status').equals('ready').reverse().sortBy('createdAt'))
+  const ready = useLiveQuery(async () =>
+    (await db.explorer.where('status').equals('ready').reverse().sortBy('createdAt')).filter((e) => e.detourId === undefined),
+  )
+  const detours = useLiveQuery(() => db.detours.orderBy('createdAt').reverse().toArray())
+  const detourWords = useLiveQuery(() => db.explorer.where('detourId').above(0).toArray())
   const cards = useLiveQuery(() => db.cards.toArray())
 
   const [word, setWord] = useState('')
@@ -69,32 +72,39 @@ export default function Journal() {
       )}
 
       <div className="card">
-        <h2>Minhas palavras ({ready?.length ?? 0})</h2>
-        {ready && ready.length === 0 && <p className="muted">Ainda vazio. As palavras que você completar entram aqui e passam na frente das novas da rota, dentro do limite diário.</p>}
+        <h2>Desvios 🛣️</h2>
+        <p className="muted">
+          Cole um texto (notícia, artigo, letra de música) ou um PDF de um assunto que você gosta. O app tira as palavras que você
+          já sabe e monta um treino só com as que faltam. Cada texto vira um lugar fora da rota.
+        </p>
         <ul className="entry-list">
-          {ready?.map((e) => {
-            const sense = senseOfEntry(e)
-            const card = cardOf(e)
-            const city = e.senseId ? getPhaseOfSense(e.senseId)?.city : undefined
+          {detours?.map((d) => {
+            const words = detourWords?.filter((w) => w.detourId === d.id) ?? []
+            const learned = words.filter((w) => {
+              const c = cardOf(w)
+              return c && lightOf(c.fsrs) === 'learned'
+            }).length
             return (
-              <li key={e.id}>
+              <li key={d.id}>
                 <div>
-                  <div className="entry-title">
-                    {card ? <LightBadge light={lightOf(card.fsrs)} /> : <span className="badge">na fila</span>}
-                    <strong>{sense?.lemma ?? e.word}</strong>
-                    {sense?.translationPt && <span className="muted">· {sense.translationPt}</span>}
-                  </div>
-                  <p className="muted">{sense?.definition}</p>
-                  {city && <p className="muted">🛣️ Encontrada na estrada: está na rota em {city}</p>}
-                  {e.source && <p className="muted">📍 {e.source}</p>}
+                  <strong>📍 {d.name}</strong>
+                  <p className="muted">{words.length} palavras · {learned} aprendidas</p>
                 </div>
                 <div className="entry-actions">
-                  {e.custom && <Link className="button small" to={`/diario/completar/${e.id}`}>Editar</Link>}
-                  <button className="icon" onClick={() => { if (window.confirm(`Apagar "${e.word}" do Diário? O progresso dessa palavra será perdido.`)) void deleteEntry(e) }} aria-label={`Apagar ${e.word}`}>🗑️</button>
+                  <Link className="button small" to={`/diario/desvio/${d.id}`}>Abrir</Link>
                 </div>
               </li>
             )
           })}
+        </ul>
+        <Link className="button" to="/diario/desvio/novo">+ Fazer um desvio (importar texto)</Link>
+      </div>
+
+      <div className="card">
+        <h2>Minhas palavras ({ready?.length ?? 0})</h2>
+        {ready && ready.length === 0 && <p className="muted">Ainda vazio. As palavras que você completar entram aqui e passam na frente das novas da rota, dentro do limite diário.</p>}
+        <ul className="entry-list">
+          {ready?.map((e) => <EntryRow key={e.id} entry={e} card={cardOf(e)} />)}
         </ul>
       </div>
     </section>
