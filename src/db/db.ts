@@ -27,6 +27,8 @@ export interface Settings {
   pomodoro: { studyMinutes: number; breakMinutes: number; longBreakMinutes: number; cyclesBeforeLongBreak: number }
   /** Interface language; the app suggests English when the learner reaches B1. */
   uiLanguage: 'pt' | 'en'
+  /** Recovery mode: new cards pause while the review backlog is too large. */
+  recoveryActive: boolean
 }
 
 export const DEFAULT_SETTINGS: Settings = {
@@ -36,6 +38,7 @@ export const DEFAULT_SETTINGS: Settings = {
   accent: 'US',
   pomodoro: { studyMinutes: 15, breakMinutes: 4, longBreakMinutes: 10, cyclesBeforeLongBreak: 4 },
   uiLanguage: 'pt',
+  recoveryActive: false,
 }
 
 /** How a sense is answered: multiple choice first, typing once it is mastered. */

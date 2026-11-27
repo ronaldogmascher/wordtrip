@@ -1,6 +1,17 @@
+import { useLiveQuery } from 'dexie-react-hooks'
+import { Link } from 'react-router-dom'
 import TrafficLight from '../components/TrafficLight.tsx'
+import { db } from '../db/db.ts'
+import { dayPlan, localDate } from '../study/session.ts'
 
 export default function Home() {
+  // Re-computed whenever cards, days or settings change.
+  const plan = useLiveQuery(async () => {
+    await Promise.all([db.cards.count(), db.days.count(), db.settings.count()])
+    return dayPlan(new Date())
+  })
+  const today = useLiveQuery(() => db.days.get(localDate(new Date())))
+
   return (
     <section className="screen">
       <header className="hero">
@@ -11,8 +22,35 @@ export default function Home() {
 
       <div className="card">
         <h2>Plano de hoje</h2>
-        <p className="muted">Os cards chegam na próxima etapa da construção. Por enquanto, este é o esqueleto do app.</p>
-        <button className="primary" disabled>Começar sessão</button>
+        {plan ? (
+          <>
+            <p>
+              <strong>{plan.reviewsDue}</strong> revisões + <strong>{plan.newRemaining}</strong> novas
+              {plan.estimatedMinutes > 0 && <> · cerca de {plan.estimatedMinutes} min</>}
+            </p>
+            {plan.recovery && (
+              <p className="warning">
+                Modo recuperação: muitas revisões acumuladas. As palavras novas voltam quando ficarem menos de 50.
+              </p>
+            )}
+            {today && (
+              <p className="muted">
+                Hoje: {today.cardsReviewed} cards · {Math.round(today.activeSeconds / 60)} min · {today.xp} XP
+              </p>
+            )}
+            <Link className="button primary" to="/estudar?tipo=mixed">Sessão do dia</Link>
+            <div className="row">
+              <Link className="button" to="/estudar?tipo=reviews">Só revisão</Link>
+              {plan.recovery ? (
+                <span className="button disabled" aria-disabled="true">Só novas</span>
+              ) : (
+                <Link className="button" to="/estudar?tipo=new">Só novas</Link>
+              )}
+            </div>
+          </>
+        ) : (
+          <p className="muted">Carregando…</p>
+        )}
       </div>
 
       <div className="card">

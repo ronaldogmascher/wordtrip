@@ -1,6 +1,7 @@
 import { NavLink, Route, Routes } from 'react-router-dom'
 import Home from './screens/Home.tsx'
 import Placeholder from './screens/Placeholder.tsx'
+import Study from './screens/Study.tsx'
 
 const tabs = [
   { to: '/', label: 'Início', icon: '🏠' },
@@ -16,6 +17,7 @@ export default function App() {
       <main className="content">
         <Routes>
           <Route path="/" element={<Home />} />
+          <Route path="/estudar" element={<Study />} />
           <Route path="/mapa" element={<Placeholder title="Mapa da jornada" text="De Santo André a Nova York. As 12 cidades do Brasil chegam em breve." />} />
           <Route path="/diario" element={<Placeholder title="Diário de bordo" text="Aqui vão ficar as palavras que você encontrar em podcasts e leituras." />} />
           <Route path="/painel" element={<Placeholder title="Painel" text="Sua evolução: palavras aprendidas, mais difíceis e tempo de estudo." />} />
