@@ -3,16 +3,21 @@ import { Link } from 'react-router-dom'
 import { playCorrect, playWrong } from '../audio/effects.ts'
 import { getSettings, type Accent } from '../db/db.ts'
 import { isRight, makeSession, TOPICS, type GrammarMode, type GrammarQuestion, type GrammarTopic } from '../grammar/exercises.ts'
+import { NOTHING, RULE_TOPICS, type RuleTopic } from '../grammar/rules.ts'
 import { canSpeak, speak } from '../study/speech.ts'
 
-// "Treino de gramática": free practice of verb tenses with the verbs of the route.
+// "Treino de gramática": free practice of verb tenses (with the verbs of the route) and of
+// "regrinhas" like in/on/at and a/an.
+
+type Topic = GrammarTopic | RuleTopic
+const ALL_TOPICS = [...TOPICS, ...RULE_TOPICS]
 
 const SESSION_SIZE = 10
 
 export default function Grammar() {
   const [accent, setAccent] = useState<Accent>('US')
   const [soundEffects, setSoundEffects] = useState(true)
-  const [selected, setSelected] = useState<GrammarTopic[]>(['present-simple', 'past-simple'])
+  const [selected, setSelected] = useState<Topic[]>(['present-simple', 'past-simple'])
   const [mode, setMode] = useState<GrammarMode>('choice')
   const [session, setSession] = useState<GrammarQuestion[] | null>(null)
   const [index, setIndex] = useState(0)
@@ -25,7 +30,7 @@ export default function Grammar() {
     })
   }, [])
 
-  const toggle = (t: GrammarTopic) =>
+  const toggle = (t: Topic) =>
     setSelected((cur) => (cur.includes(t) ? (cur.length > 1 ? cur.filter((x) => x !== t) : cur) : [...cur, t]))
 
   function start() {
@@ -38,9 +43,9 @@ export default function Grammar() {
     return (
       <section className="screen">
         <h1>📝 Treino de gramática</h1>
-        <p className="muted">Pratique os tempos verbais com os verbos da sua rota. Cada frase tem uma pista de tempo (yesterday, right now, tomorrow…) para você escolher a forma certa.</p>
+        <p className="muted">Pratique os tempos verbais com os verbos da sua rota e as regrinhas que mais confundem (in/on/at, a/an…). Escolha um ou mais temas e misture à vontade.</p>
         <div className="card settings-group">
-          <h2>O que treinar</h2>
+          <h2>Tempos verbais</h2>
           <div className="chips">
             {TOPICS.map((t) => (
               <button key={t.id} className="chip" aria-pressed={selected.includes(t.id)} onClick={() => toggle(t.id)}>
@@ -48,12 +53,21 @@ export default function Grammar() {
               </button>
             ))}
           </div>
+          <h2>Regrinhas</h2>
+          <div className="chips">
+            {RULE_TOPICS.map((t) => (
+              <button key={t.id} className="chip" aria-pressed={selected.includes(t.id)} onClick={() => toggle(t.id)}>
+                {t.icon} {t.label}
+              </button>
+            ))}
+          </div>
           <ul className="grammar-rules">
-            {TOPICS.filter((t) => selected.includes(t.id)).map((t) => (
+            {ALL_TOPICS.filter((t) => selected.includes(t.id)).map((t) => (
               <li key={t.id}><strong>{t.label}:</strong> {t.rule}</li>
             ))}
           </ul>
           <h2>Como responder</h2>
+          <p className="muted">As regrinhas são sempre de escolher.</p>
           <div className="segmented" role="group" aria-label="Como responder">
             <button aria-pressed={mode === 'choice'} onClick={() => setMode('choice')}>Escolher</button>
             <button aria-pressed={mode === 'type'} onClick={() => setMode('type')}>Digitar</button>
@@ -107,11 +121,12 @@ function Question({ question, mode, accent, soundEffects, onNext }: {
 }) {
   const [typed, setTyped] = useState('')
   const [result, setResult] = useState<boolean | null>(null)
-  const topic = TOPICS.find((t) => t.id === question.topic)!
+  const topic = ALL_TOPICS.find((t) => t.id === question.topic)!
+  const choosing = mode === 'choice' || question.choiceOnly
 
   function submit(answer: string) {
     setTyped(answer)
-    const ok = isRight(question, answer, mode)
+    const ok = isRight(question, answer, choosing ? 'choice' : 'type')
     setResult(ok)
     if (soundEffects) {
       if (ok) playCorrect()
@@ -124,11 +139,11 @@ function Question({ question, mode, accent, soundEffects, onNext }: {
     <div className="card study">
       <p className="muted">{topic.icon} {topic.label}</p>
       <p className="sentence">{question.text}</p>
-      <p className="muted">({question.verb} = {question.verbPt})</p>
-      {result === null ? (mode === 'choice' ? (
+      {question.hint && <p className="muted">{question.hint}</p>}
+      {result === null ? (choosing ? (
         <div className="ipa-options">
           {question.options.map((o) => (
-            <button key={o} className="choice" onClick={() => submit(o)}>{o}</button>
+            <button key={o} className="choice" onClick={() => submit(o)}>{o === NOTHING ? 'sem artigo' : o}</button>
           ))}
         </div>
       ) : (
@@ -149,9 +164,10 @@ function Question({ question, mode, accent, soundEffects, onNext }: {
       )) : (
         <div className="reveal">
           <p className={`verdict ${result ? 'ok' : 'wrong'}`}>
-            {result ? '✔ Correto!' : `✘ ${typed.trim() ? `Você respondeu "${typed}". ` : ''}A resposta era "${question.answer}"`}
+            {result ? '✔ Correto!' : `✘ ${typed.trim() ? `Você respondeu "${label(typed)}". ` : ''}A resposta era "${label(question.answer)}"`}
           </p>
           <p className="sentence">{question.full}</p>
+          <p className="translation">🇧🇷 {question.translation}</p>
           {canSpeak() && (
             <div className="audio-row">
               <button onClick={() => speak(question.full, accent)}>🔊 Ouvir</button>
@@ -165,3 +181,5 @@ function Question({ question, mode, accent, soundEffects, onNext }: {
     </div>
   )
 }
+
+const label = (answer: string) => (answer === NOTHING ? 'sem artigo' : answer)
