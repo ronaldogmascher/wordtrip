@@ -1,14 +1,16 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 import type { Sense } from '../content/types.ts'
 import { getSettings, type Accent, type StudyCard } from '../db/db.ts'
 import { checkAnswer, hintFor, type AnswerCheck } from '../study/answer.ts'
 import { useActiveTime } from '../study/activeTime.ts'
-import { applyKnownShortcut, applyReview } from '../study/scheduler.ts'
+import { applyKnownShortcut, applyReview, lightOf } from '../study/scheduler.ts'
+import { timeUntil } from '../study/when.ts'
 import { BANDS, finalScore, toRating, xpFor } from '../study/scoring.ts'
 import { buildQueue, distractors, saveAnswer, type QueueItem, type SessionKind } from '../study/session.ts'
 import { canSpeak, speak } from '../study/speech.ts'
 import Flag from '../components/Flag.tsx'
+import LightBadge from '../components/LightBadge.tsx'
 import VerbFormsTable from '../components/VerbFormsTable.tsx'
 
 /** A card scheduled again within this window is repeated at the end of the session. */
@@ -101,6 +103,7 @@ function CardView({ item, accent, onDone }: { item: QueueItem; accent: Accent; o
   const [check, setCheck] = useState<AnswerCheck | null>(null)
   const [selfScore, setSelfScore] = useState(8)
   const [startedAt] = useState(() => Date.now())
+  const [answeredAt, setAnsweredAt] = useState<Date | null>(null)
 
   // Shuffled once per card (the component is re-mounted for every card).
   const [options] = useState(() => {
@@ -115,20 +118,28 @@ function CardView({ item, accent, onDone }: { item: QueueItem; accent: Accent; o
   const score = finalScore({ selfScore, correct, typo: check === 'typo', usedTranslation, usedHint })
   const band = BANDS.find((b) => score >= b.min && score <= b.max)!
 
+  // The card as it will be saved, recomputed while the slider moves, so the learner sees
+  // the new traffic-light color and when the word comes back before pressing "Continuar".
+  const updated = useMemo(() => {
+    if (!answeredAt) return null
+    return shortcutConfirmed
+      ? applyKnownShortcut(card, answeredAt)
+      : applyReview({ ...card, mode }, toRating(score), score, correct, answeredAt)
+  }, [answeredAt, shortcutConfirmed, card, mode, score, correct])
+
   function submit(answer: string) {
     setTyped(answer)
     const result = checkAnswer(answer, example.answer)
     setCheck(result)
+    setAnsweredAt(new Date())
     // A wrong answer is capped at 3 anyway, so start the slider in the "Errei" band.
     if (result === 'wrong') setSelfScore(2)
     if (canSpeak()) speak(example.answer, accent)
   }
 
   async function next() {
-    const now = new Date()
-    const updated = shortcutConfirmed
-      ? applyKnownShortcut(card, now)
-      : applyReview({ ...card, mode }, toRating(score), score, correct, now)
+    if (!updated || !answeredAt) return
+    const now = answeredAt
     const finalValue = shortcutConfirmed ? 10 : score
     const gained = xpFor(finalValue)
     await saveAnswer(
@@ -162,6 +173,7 @@ function CardView({ item, accent, onDone }: { item: QueueItem; accent: Accent; o
         <span className="badge">{POS_PT[sense.pos]}</span>
         {example.tense && <span className="badge badge-tense">{example.tense}</span>}
         {isNew && <span className="badge badge-new">nova</span>}
+        <span className="study-meta-light"><LightBadge light={lightOf(card.fsrs)} /></span>
       </div>
 
       <p className="definition">{sense.definition}</p>
@@ -271,6 +283,13 @@ function CardView({ item, accent, onDone }: { item: QueueItem; accent: Accent; o
                 Nota final: <strong>{score}</strong> ({band.label})
               </p>
             </div>
+          )}
+          {updated && answeredAt && (
+            <p className="light-change">
+              <LightBadge light={lightOf(card.fsrs)} />
+              {lightOf(card.fsrs) !== lightOf(updated.fsrs) && <><span aria-hidden="true">→</span><LightBadge light={lightOf(updated.fsrs)} /></>}
+              <span className="muted">volta {timeUntil(updated.fsrs.due, answeredAt)}</span>
+            </p>
           )}
           <button className="primary" onClick={next}>Continuar</button>
         </div>
