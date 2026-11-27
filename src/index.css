@@ -108,13 +108,14 @@ button.icon { border: 0; background: none; font-size: 1.2rem; padding: 0 4px; }
 .tab.active { color: var(--primary); font-weight: 600; }
 .tab span:first-child { font-size: 1.25rem; }
 
-.pt-flag { vertical-align: -2px; border-radius: 2px; }
+.flag { vertical-align: -2px; border-radius: 2px; flex: none; }
+.audio-row { display: flex; gap: 8px; }
+.audio-row button { flex: 1; padding: 8px; border-radius: 10px; border: 1px solid var(--border); background: var(--surface); font-size: 0.9rem; }
 .badge-tense { background: color-mix(in srgb, var(--primary) 18%, transparent); }
 .badge-irregular { background: color-mix(in srgb, var(--yellow) 25%, transparent); }
 .ipa-list { display: flex; flex-direction: column; gap: 2px; }
 .ipa-row { display: flex; align-items: center; gap: 8px; }
 .ipa-row.muted .ipa { color: var(--muted); }
-.accent-tag { font-size: 0.7rem; font-weight: 700; padding: 1px 6px; border-radius: 6px; border: 1px solid var(--border); color: var(--muted); }
 .verb-forms { background: var(--bg); border-radius: 12px; padding: 10px 12px; }
 .verb-forms-title { font-weight: 600; display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
 .verb-forms-title .badge { margin: 0; }

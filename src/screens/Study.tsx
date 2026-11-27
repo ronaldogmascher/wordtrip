@@ -8,7 +8,7 @@ import { applyKnownShortcut, applyReview } from '../study/scheduler.ts'
 import { BANDS, finalScore, toRating, xpFor } from '../study/scoring.ts'
 import { buildQueue, distractors, saveAnswer, type QueueItem, type SessionKind } from '../study/session.ts'
 import { canSpeak, speak } from '../study/speech.ts'
-import PtFlag from '../components/PtFlag.tsx'
+import Flag from '../components/Flag.tsx'
 import VerbFormsTable from '../components/VerbFormsTable.tsx'
 
 /** A card scheduled again within this window is repeated at the end of the session. */
@@ -154,6 +154,7 @@ function CardView({ item, accent, onDone }: { item: QueueItem; accent: Accent; o
   }
 
   const [before, after] = example.text.split('____')
+  const fullSentence = example.text.replace('____', example.answer)
 
   return (
     <div className="card study">
@@ -164,7 +165,7 @@ function CardView({ item, accent, onDone }: { item: QueueItem; accent: Accent; o
       </div>
 
       <p className="definition">{sense.definition}</p>
-      {usedTranslation && <p className="translation"><PtFlag /> {sense.definitionPt}</p>}
+      {usedTranslation && <p className="translation"><Flag country="BR" /> {sense.definitionPt}</p>}
 
       <p className="sentence">
         {before}
@@ -173,6 +174,12 @@ function CardView({ item, accent, onDone }: { item: QueueItem; accent: Accent; o
         </span>
         {after}
       </p>
+      {answered && canSpeak() && (
+        <div className="audio-row">
+          <button onClick={() => speak(fullSentence, accent)} aria-label="Ouvir a frase">🔊 Ouvir a frase</button>
+          <button onClick={() => speak(fullSentence, accent, true)} aria-label="Ouvir a frase devagar">🐢 Devagar</button>
+        </div>
+      )}
 
       {!answered && (
         <>
@@ -222,15 +229,18 @@ function CardView({ item, accent, onDone }: { item: QueueItem; accent: Accent; o
           <div className="ipa-list">
             {(accent === 'US' ? (['US', 'UK'] as const) : (['UK', 'US'] as const)).map((a) => (
               <div key={a} className={`ipa-row ${a === accent ? '' : 'muted'}`}>
-                <span className="accent-tag">{a}</span>
+                <Flag country={a} />
                 <span className="ipa">/{a === 'US' ? sense.ipaUS : sense.ipaUK}/</span>
                 {canSpeak() && (
-                  <button className="icon" onClick={() => speak(sense.lemma, a)} aria-label={`Ouvir a pronúncia ${a}`}>🔊</button>
+                  <>
+                    <button className="icon" onClick={() => speak(sense.lemma, a)} aria-label={`Ouvir a pronúncia ${a}`}>🔊</button>
+                    <button className="icon" onClick={() => speak(sense.lemma, a, true)} aria-label={`Ouvir a pronúncia ${a} devagar`}>🐢</button>
+                  </>
                 )}
               </div>
             ))}
           </div>
-          <p><PtFlag /> <strong>{sense.translationPt}</strong>{example.pt && <span className="muted"> · {example.pt}</span>}</p>
+          <p><Flag country="BR" /> <strong>{sense.translationPt}</strong>{example.pt && <span className="muted"> · {example.pt}</span>}</p>
           {sense.forms && <VerbFormsTable lemma={sense.lemma} forms={sense.forms} />}
           {(sense.synonyms.length > 0 || sense.antonym) && (
             <p className="muted">
