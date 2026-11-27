@@ -225,3 +225,9 @@ button.primary.inline { margin-top: 0; }
 .ipa-options-symbols .choice { font-family: 'Charis SIL', 'Doulos SIL', 'Noto Sans', serif; font-size: 1.8rem; padding: 14px; }
 .ipa-reveal { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
 .grammar-rules { padding-left: 18px; display: flex; flex-direction: column; gap: 4px; }
+.music-picker { border: 0; padding: 0; margin: 8px 0; display: flex; flex-direction: column; gap: 8px; }
+.music-picker legend { font-weight: 600; margin-bottom: 4px; }
+.music-option { display: flex; align-items: center; gap: 8px; justify-content: space-between; }
+.music-option label { display: flex; gap: 8px; align-items: flex-start; flex: 1; }
+.music-option .say { white-space: nowrap; }
+.time-input { font-size: 2rem; text-align: center; letter-spacing: 0.1em; font-variant-numeric: tabular-nums; }
