@@ -5,6 +5,7 @@ import DetourView from './screens/DetourView.tsx'
 import ExplorerForm from './screens/ExplorerForm.tsx'
 import Home from './screens/Home.tsx'
 import Journal from './screens/Journal.tsx'
+import Numbers from './screens/Numbers.tsx'
 import Placeholder from './screens/Placeholder.tsx'
 import Settings from './screens/Settings.tsx'
 import Study from './screens/Study.tsx'
@@ -25,7 +26,7 @@ export default function App() {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/estudar" element={<Study />} />
-          <Route path="/mapa" element={<Placeholder title="Mapa da jornada" text="De Santo André a Nova York. As 12 cidades do Brasil chegam em breve." />} />
+          <Route path="/mapa" element={<Placeholder title="Mapa da jornada" text="De Santo André a Nova York. O mapa com as 12 cidades do Brasil chega com o jogo." />} />
           <Route path="/diario" element={<Journal />} />
           <Route path="/diario/completar/:id" element={<ExplorerForm />} />
           <Route path="/diario/desvio/novo" element={<DetourNew />} />
@@ -33,6 +34,7 @@ export default function App() {
           <Route path="/painel" element={<Placeholder title="Painel" text="Sua evolução: palavras aprendidas, mais difíceis e tempo de estudo." />} />
           <Route path="/dicionario" element={<Dictionary />} />
           <Route path="/dicionario/:word" element={<Dictionary />} />
+          <Route path="/numeros" element={<Numbers />} />
           <Route path="/ajustes" element={<Settings />} />
         </Routes>
       </main>
