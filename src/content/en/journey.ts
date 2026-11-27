@@ -4,7 +4,7 @@ import type { City } from '../types.ts'
 // Later legs (A2 Latin America, B1 West Coast USA, B2 crossing to New York) are added later.
 export const citiesA1: City[] = [
   { phaseId: 'en:a1:01', number: 1, name: 'Santo André', region: 'SP', landmark: 'Ponto de partida', available: true },
-  { phaseId: 'en:a1:02', number: 2, name: 'São Paulo', region: 'SP', landmark: 'Avenida Paulista', available: false },
+  { phaseId: 'en:a1:02', number: 2, name: 'São Paulo', region: 'SP', landmark: 'Avenida Paulista', available: true },
   { phaseId: 'en:a1:03', number: 3, name: 'Rio de Janeiro', region: 'RJ', landmark: 'Cristo Redentor', available: false },
   { phaseId: 'en:a1:04', number: 4, name: 'Ouro Preto', region: 'MG', landmark: 'Igrejas barrocas', available: false },
   { phaseId: 'en:a1:05', number: 5, name: 'Salvador', region: 'BA', landmark: 'Pelourinho', available: false },
