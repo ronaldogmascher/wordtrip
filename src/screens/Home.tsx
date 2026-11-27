@@ -62,6 +62,7 @@ export default function Home() {
         <div className="row">
           <Link className="button" to="/numeros">🔢 Números e horas</Link>
           <Link className="button" to="/ipa">🗣️ Trilha de IPA</Link>
+          <Link className="button" to="/gramatica">📝 Gramática</Link>
         </div>
       </div>
 

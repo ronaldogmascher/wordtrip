@@ -224,3 +224,4 @@ button.primary.inline { margin-top: 0; }
 .ipa-options { display: grid; gap: 8px; }
 .ipa-options-symbols .choice { font-family: 'Charis SIL', 'Doulos SIL', 'Noto Sans', serif; font-size: 1.8rem; padding: 14px; }
 .ipa-reveal { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+.grammar-rules { padding-left: 18px; display: flex; flex-direction: column; gap: 4px; }
