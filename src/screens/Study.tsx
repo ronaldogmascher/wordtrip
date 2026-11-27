@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 import type { Sense } from '../content/types.ts'
+import { playCorrect, playWrong } from '../audio/effects.ts'
 import { getSettings, type Accent, type StudyCard } from '../db/db.ts'
 import { checkAnswer, hintFor, type AnswerCheck } from '../study/answer.ts'
 import { useActiveTime } from '../study/activeTime.ts'
@@ -38,10 +39,14 @@ export default function Study() {
   const [index, setIndex] = useState(0)
   const [xp, setXp] = useState(0)
   const [accent, setAccent] = useState<Accent>('US')
+  const [soundEffects, setSoundEffects] = useState(true)
 
   useEffect(() => {
     void buildQueue(kind, new Date(), detourId).then(setQueue)
-    void getSettings().then((s) => setAccent(s.accent))
+    void getSettings().then((s) => {
+      setAccent(s.accent)
+      setSoundEffects(s.soundEffects)
+    })
   }, [kind, detourId])
 
   const done = queue !== null && index >= queue.length
@@ -82,6 +87,7 @@ export default function Study() {
         key={item.card.id + index}
         item={item}
         accent={accent}
+        soundEffects={soundEffects}
         onDone={(gained, updated) => {
           setXp((x) => x + gained)
           // Cards due again within a few minutes (learning steps) come back later in this session.
@@ -95,7 +101,12 @@ export default function Study() {
   )
 }
 
-function CardView({ item, accent, onDone }: { item: QueueItem; accent: Accent; onDone: (xp: number, updated: StudyCard) => void }) {
+function CardView({ item, accent, soundEffects, onDone }: {
+  item: QueueItem
+  accent: Accent
+  soundEffects: boolean
+  onDone: (xp: number, updated: StudyCard) => void
+}) {
   const { sense, card, isNew } = item
   const example = sense.examples[0]
   const [mode, setMode] = useState(card.mode)
@@ -138,7 +149,12 @@ function CardView({ item, accent, onDone }: { item: QueueItem; accent: Accent; o
     setAnsweredAt(new Date())
     // A wrong answer is capped at 3 anyway, so start the slider in the "Errei" band.
     if (result === 'wrong') setSelfScore(2)
-    if (canSpeak()) speak(example.answer, accent)
+    if (soundEffects) {
+      if (result === 'wrong') playWrong()
+      else playCorrect()
+    }
+    // Let the effect finish before the word is read aloud.
+    if (canSpeak()) window.setTimeout(() => speak(example.answer, accent), soundEffects ? 450 : 0)
   }
 
   async function next() {
