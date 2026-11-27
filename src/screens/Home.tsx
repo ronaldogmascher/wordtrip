@@ -57,6 +57,12 @@ export default function Home() {
       </div>
 
       <div className="card">
+        <h2>Treinos livres</h2>
+        <p className="muted">Fora da rota, sem limite diário.</p>
+        <Link className="button" to="/numeros">🔢 Números e horas</Link>
+      </div>
+
+      <div className="card">
         <h2>Como ler o semáforo</h2>
         <TrafficLight />
       </div>
