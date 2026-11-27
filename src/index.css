@@ -14,8 +14,9 @@
   line-height: 1.5;
 }
 
+/* Dark theme: follows the system unless the learner picked a theme in Ajustes. */
 @media (prefers-color-scheme: dark) {
-  :root {
+  :root:not([data-theme="light"]) {
     --bg: #0b1220;
     --surface: #111a2e;
     --text: #e2e8f0;
@@ -23,8 +24,20 @@
     --primary: #2dd4bf;
     --primary-text: #042f2e;
     --border: #1e293b;
+    color-scheme: dark;
   }
 }
+:root[data-theme="dark"] {
+    --bg: #0b1220;
+    --surface: #111a2e;
+    --text: #e2e8f0;
+    --muted: #94a3b8;
+    --primary: #2dd4bf;
+    --primary-text: #042f2e;
+    --border: #1e293b;
+    color-scheme: dark;
+}
+:root[data-theme="light"] { color-scheme: light; }
 
 * { box-sizing: border-box; }
 body { margin: 0; background: var(--bg); color: var(--text); }
@@ -86,11 +99,34 @@ button.icon { border: 0; background: none; font-size: 1.2rem; padding: 0 4px; }
 .traffic { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 12px; }
 .state { display: flex; gap: 12px; align-items: flex-start; }
 .state .dot { width: 32px; height: 32px; flex: none; border-radius: 50%; display: grid; place-items: center; color: #fff; font-size: 0.9rem; }
-.state-learning .dot { background: var(--red); }
-.state-young .dot { background: var(--yellow); }
-.state-mature .dot { background: var(--green); }
+.state-discovering .dot { background: var(--red); }
+.state-learning .dot { background: var(--yellow); }
+.state-learned .dot { background: var(--green); }
 
 .tabbar { position: fixed; bottom: 0; left: 0; right: 0; display: flex; justify-content: space-around; background: var(--surface); border-top: 1px solid var(--border); padding: 6px 4px calc(6px + env(safe-area-inset-bottom)); }
 .tab { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 4px; font-size: 0.75rem; color: var(--muted); text-decoration: none; border-radius: 10px; }
 .tab.active { color: var(--primary); font-weight: 600; }
 .tab span:first-child { font-size: 1.25rem; }
+
+.pt-flag { vertical-align: -2px; border-radius: 2px; }
+.badge-tense { background: color-mix(in srgb, var(--primary) 18%, transparent); }
+.badge-irregular { background: color-mix(in srgb, var(--yellow) 25%, transparent); }
+.ipa-list { display: flex; flex-direction: column; gap: 2px; }
+.ipa-row { display: flex; align-items: center; gap: 8px; }
+.ipa-row.muted .ipa { color: var(--muted); }
+.accent-tag { font-size: 0.7rem; font-weight: 700; padding: 1px 6px; border-radius: 6px; border: 1px solid var(--border); color: var(--muted); }
+.verb-forms { background: var(--bg); border-radius: 12px; padding: 10px 12px; }
+.verb-forms-title { font-weight: 600; display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+.verb-forms-title .badge { margin: 0; }
+.verb-forms dl { margin: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 6px 12px; }
+.verb-forms dt { font-size: 0.75rem; color: var(--muted); }
+.verb-forms dd { margin: 0; font-weight: 600; }
+
+.settings-group { display: flex; flex-direction: column; gap: 8px; }
+.segmented { display: flex; border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+.segmented button { flex: 1; padding: 10px 6px; border: 0; background: var(--surface); font-size: 0.95rem; }
+.segmented button[aria-pressed="true"] { background: var(--primary); color: var(--primary-text); font-weight: 600; }
+.number-input { width: 6rem; padding: 8px; font-size: 1rem; border-radius: 10px; border: 1px solid var(--border); background: var(--bg); color: var(--text); }
+details.readme summary { font-weight: 600; cursor: pointer; }
+details.readme ul { padding-left: 20px; margin: 8px 0; }
+details.readme li { margin: 4px 0; }

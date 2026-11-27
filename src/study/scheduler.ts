@@ -4,9 +4,10 @@ import type { AnswerMode, CardSource, StudyCard } from '../db/db.ts'
 const scheduler = fsrs({ enable_fuzz: true })
 
 /** Interval (days) from which a sense counts as learned (green). */
-export const MATURE_DAYS = 21
+export const LEARNED_DAYS = 21
 
-export type Light = 'learning' | 'young' | 'mature'
+/** Traffic light: red = discovering, yellow = learning, green = learned. */
+export type Light = 'discovering' | 'learning' | 'learned'
 
 export function newStudyCard(senseId: string, source: CardSource, now: Date, mode: AnswerMode = 'choice'): StudyCard {
   return {
@@ -24,8 +25,8 @@ export function newStudyCard(senseId: string, source: CardSource, now: Date, mod
 
 /** Traffic-light state of a card. */
 export function lightOf(card: FsrsCard): Light {
-  if (card.state === State.New || card.state === State.Learning || card.state === State.Relearning) return 'learning'
-  return card.scheduled_days >= MATURE_DAYS ? 'mature' : 'young'
+  if (card.state === State.New || card.state === State.Learning || card.state === State.Relearning) return 'discovering'
+  return card.scheduled_days >= LEARNED_DAYS ? 'learned' : 'learning'
 }
 
 /** Probability (0–1) that the learner still remembers the card now. */

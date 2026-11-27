@@ -62,11 +62,11 @@ describe('scheduling', () => {
     expect(card.mode).toBe('choice')
   })
 
-  it('starts as a red (learning) card', () => {
-    expect(lightOf(newStudyCard('en:go:v:1', 'route', now).fsrs)).toBe('learning')
+  it('starts as a red (discovering) card', () => {
+    expect(lightOf(newStudyCard('en:go:v:1', 'route', now).fsrs)).toBe('discovering')
   })
 
-  it('sends a "Já sei" card out of the learning state', () => {
+  it('sends a "Já sei" card out of the red state', () => {
     const card = applyKnownShortcut(newStudyCard('en:go:v:1', 'route', now), now)
     expect(card.fsrs.state).toBe(State.Review)
     expect(card.fsrs.scheduled_days).toBeGreaterThanOrEqual(5)

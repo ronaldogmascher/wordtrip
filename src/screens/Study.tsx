@@ -8,6 +8,8 @@ import { applyKnownShortcut, applyReview } from '../study/scheduler.ts'
 import { BANDS, finalScore, toRating, xpFor } from '../study/scoring.ts'
 import { buildQueue, distractors, saveAnswer, type QueueItem, type SessionKind } from '../study/session.ts'
 import { canSpeak, speak } from '../study/speech.ts'
+import PtFlag from '../components/PtFlag.tsx'
+import VerbFormsTable from '../components/VerbFormsTable.tsx'
 
 /** A card scheduled again within this window is repeated at the end of the session. */
 const AGAIN_IN_SESSION_MS = 15 * 60 * 1000
@@ -152,18 +154,17 @@ function CardView({ item, accent, onDone }: { item: QueueItem; accent: Accent; o
   }
 
   const [before, after] = example.text.split('____')
-  const ipaMain = accent === 'US' ? sense.ipaUS : sense.ipaUK
-  const ipaOther = accent === 'US' ? sense.ipaUK : sense.ipaUS
 
   return (
     <div className="card study">
       <div className="study-meta">
         <span className="badge">{POS_PT[sense.pos]}</span>
+        {example.tense && <span className="badge badge-tense">{example.tense}</span>}
         {isNew && <span className="badge badge-new">nova</span>}
       </div>
 
       <p className="definition">{sense.definition}</p>
-      {usedTranslation && <p className="translation">🇧🇷 {sense.definitionPt}</p>}
+      {usedTranslation && <p className="translation"><PtFlag /> {sense.definitionPt}</p>}
 
       <p className="sentence">
         {before}
@@ -176,8 +177,8 @@ function CardView({ item, accent, onDone }: { item: QueueItem; accent: Accent; o
       {!answered && (
         <>
           <div className="tools">
-            <button onClick={() => setUsedTranslation(true)} disabled={usedTranslation}>Traduzir (−3)</button>
-            <button onClick={() => setUsedHint(true)} disabled={usedHint}>Dica (−2)</button>
+            <button onClick={() => setUsedTranslation(true)} disabled={usedTranslation}>Traduzir</button>
+            <button onClick={() => setUsedHint(true)} disabled={usedHint}>Dica</button>
             {isNew && mode === 'choice' && !knownAttempt && (
               <button onClick={() => { setKnownAttempt(true); setMode('typing') }}>Já sei</button>
             )}
@@ -212,16 +213,25 @@ function CardView({ item, accent, onDone }: { item: QueueItem; accent: Accent; o
         <div className="reveal">
           <p className={`verdict ${correct ? 'ok' : 'wrong'}`}>
             {check === 'correct' && '✔ Correto!'}
-            {check === 'typo' && `✔ Quase! Você escreveu "${typed}" (−2 pela ortografia)`}
+            {check === 'typo' && `✔ Quase! Você escreveu "${typed}"`}
             {check === 'wrong' && (typed.trim() ? `✘ Você respondeu "${typed}". A resposta era "${example.answer}"` : `✘ A resposta era "${example.answer}"`)}
           </p>
           <div className="word-line">
             <strong className="lemma">{sense.lemma}</strong>
-            <span className="ipa">/{ipaMain}/ <small>{accent}</small></span>
-            <span className="ipa muted">/{ipaOther}/ <small>{accent === 'US' ? 'UK' : 'US'}</small></span>
-            {canSpeak() && <button className="icon" onClick={() => speak(sense.lemma, accent)} aria-label="Ouvir a pronúncia">🔊</button>}
           </div>
-          <p>🇧🇷 <strong>{sense.translationPt}</strong>{example.pt && <span className="muted"> · {example.pt}</span>}</p>
+          <div className="ipa-list">
+            {(accent === 'US' ? (['US', 'UK'] as const) : (['UK', 'US'] as const)).map((a) => (
+              <div key={a} className={`ipa-row ${a === accent ? '' : 'muted'}`}>
+                <span className="accent-tag">{a}</span>
+                <span className="ipa">/{a === 'US' ? sense.ipaUS : sense.ipaUK}/</span>
+                {canSpeak() && (
+                  <button className="icon" onClick={() => speak(sense.lemma, a)} aria-label={`Ouvir a pronúncia ${a}`}>🔊</button>
+                )}
+              </div>
+            ))}
+          </div>
+          <p><PtFlag /> <strong>{sense.translationPt}</strong>{example.pt && <span className="muted"> · {example.pt}</span>}</p>
+          {sense.forms && <VerbFormsTable lemma={sense.lemma} forms={sense.forms} />}
           {(sense.synonyms.length > 0 || sense.antonym) && (
             <p className="muted">
               {sense.synonyms.length > 0 && <>Sinônimos: <em>{sense.synonyms.join(', ')}</em></>}
@@ -249,7 +259,6 @@ function CardView({ item, accent, onDone }: { item: QueueItem; accent: Accent; o
               </div>
               <p className="muted">
                 Nota final: <strong>{score}</strong> ({band.label})
-                {score !== selfScore && ' · descontos aplicados'}
               </p>
             </div>
           )}

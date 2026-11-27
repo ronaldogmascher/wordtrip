@@ -1,3 +1,4 @@
+import { VERB_FORMS } from './en/verbForms.ts'
 import type { Area, Cefr, GapSentence, PartOfSpeech, Sense, Topic } from './types.ts'
 
 const POS_CODE: Record<PartOfSpeech, string> = {
@@ -54,6 +55,7 @@ export function sense(lemma: string, pos: PartOfSpeech, ipaUS: string, ipaUK: st
     definitionPt: f.definitionPt,
     translationPt: f.translationPt,
     examples: f.examples,
+    forms: pos === 'verb' ? VERB_FORMS[lemma] : undefined,
     synonyms: f.synonyms,
     antonym: f.antonym,
     topics: f.topics,

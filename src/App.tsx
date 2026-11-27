@@ -1,6 +1,7 @@
 import { NavLink, Route, Routes } from 'react-router-dom'
 import Home from './screens/Home.tsx'
 import Placeholder from './screens/Placeholder.tsx'
+import Settings from './screens/Settings.tsx'
 import Study from './screens/Study.tsx'
 
 const tabs = [
@@ -21,7 +22,7 @@ export default function App() {
           <Route path="/mapa" element={<Placeholder title="Mapa da jornada" text="De Santo André a Nova York. As 12 cidades do Brasil chegam em breve." />} />
           <Route path="/diario" element={<Placeholder title="Diário de bordo" text="Aqui vão ficar as palavras que você encontrar em podcasts e leituras." />} />
           <Route path="/painel" element={<Placeholder title="Painel" text="Sua evolução: palavras aprendidas, mais difíceis e tempo de estudo." />} />
-          <Route path="/ajustes" element={<Placeholder title="Ajustes" text="Personagem, motorhome, metas, pomodoro e backup." />} />
+          <Route path="/ajustes" element={<Settings />} />
         </Routes>
       </main>
       <nav className="tabbar" aria-label="Navegação principal">
