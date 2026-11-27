@@ -59,7 +59,10 @@ export default function Home() {
       <div className="card">
         <h2>Treinos livres</h2>
         <p className="muted">Fora da rota, sem limite diário.</p>
-        <Link className="button" to="/numeros">🔢 Números e horas</Link>
+        <div className="row">
+          <Link className="button" to="/numeros">🔢 Números e horas</Link>
+          <Link className="button" to="/ipa">🗣️ Trilha de IPA</Link>
+        </div>
       </div>
 
       <div className="card">
