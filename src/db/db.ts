@@ -30,6 +30,10 @@ export interface Settings {
   uiLanguage: 'pt' | 'en'
   /** Recovery mode: new cards pause while the review backlog is too large. */
   recoveryActive: boolean
+  /** Short sounds for right and wrong answers. */
+  soundEffects: boolean
+  /** Background music on the home screen. */
+  backgroundMusic: boolean
 }
 
 export const DEFAULT_SETTINGS: Settings = {
@@ -40,6 +44,8 @@ export const DEFAULT_SETTINGS: Settings = {
   pomodoro: { studyMinutes: 15, breakMinutes: 4, longBreakMinutes: 10, cyclesBeforeLongBreak: 4 },
   uiLanguage: 'pt',
   recoveryActive: false,
+  soundEffects: true,
+  backgroundMusic: true,
 }
 
 /** How a sense is answered: multiple choice first, typing once it is mastered. */
@@ -179,5 +185,6 @@ export class WordTripDB extends Dexie {
 export const db = new WordTripDB()
 
 export async function getSettings(): Promise<Settings> {
-  return (await db.settings.get('app')) ?? DEFAULT_SETTINGS
+  // Spread over the defaults so settings saved by older versions get the newer fields.
+  return { ...DEFAULT_SETTINGS, ...(await db.settings.get('app')) }
 }

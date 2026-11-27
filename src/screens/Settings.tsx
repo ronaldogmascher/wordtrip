@@ -1,6 +1,6 @@
 import { useLiveQuery } from 'dexie-react-hooks'
 import { useState } from 'react'
-import { db, DEFAULT_SETTINGS, type Settings as AppSettings } from '../db/db.ts'
+import { db, getSettings, type Settings as AppSettings } from '../db/db.ts'
 import { PENALTY, WRONG_ANSWER_CAP } from '../study/scoring.ts'
 import { getTheme, setTheme, type ThemeChoice } from '../theme.ts'
 
@@ -23,7 +23,7 @@ function Segmented<T extends string>({ value, options, onChange, label }: {
 }
 
 export default function Settings() {
-  const settings = useLiveQuery(async () => (await db.settings.get('app')) ?? DEFAULT_SETTINGS)
+  const settings = useLiveQuery(getSettings)
   const [theme, setThemeState] = useState<ThemeChoice>(getTheme)
 
   const update = (patch: Partial<AppSettings>) => {
@@ -81,6 +81,27 @@ export default function Settings() {
               onChange={(e) => update({ newPerDay: Number(e.target.value) })}
             />
             <p className="muted">De 5 a 50. Revisões não têm limite. O padrão é 15 novas por dia.</p>
+          </div>
+
+          <div className="card settings-group">
+            <h2>Sons</h2>
+            <label className="toggle">
+              <input
+                type="checkbox"
+                checked={settings.soundEffects}
+                onChange={(e) => update({ soundEffects: e.target.checked })}
+              />
+              🔔 Efeitos sonoros de acerto e erro
+            </label>
+            <label className="toggle">
+              <input
+                type="checkbox"
+                checked={settings.backgroundMusic}
+                onChange={(e) => update({ backgroundMusic: e.target.checked })}
+              />
+              🎵 Música de viagem na tela inicial
+            </label>
+            <p className="muted">A música começa quando você toca na tela (regra dos navegadores). Se o celular estiver no silencioso, os sons podem não tocar.</p>
           </div>
         </>
       )}
