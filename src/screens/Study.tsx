@@ -1,8 +1,9 @@
+import { useLiveQuery } from 'dexie-react-hooks'
 import { useEffect, useMemo, useState } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 import type { Sense } from '../content/types.ts'
 import { playCorrect, playWrong } from '../audio/effects.ts'
-import { getSettings, type Accent, type StudyCard } from '../db/db.ts'
+import { db, getSettings, type Accent, type StudyCard } from '../db/db.ts'
 import { checkAnswer, hintFor, type AnswerCheck } from '../study/answer.ts'
 import { useActiveTime } from '../study/activeTime.ts'
 import { applyKnownShortcut, applyReview, lightOf } from '../study/scheduler.ts'
@@ -109,6 +110,8 @@ function CardView({ item, accent, soundEffects, onDone }: {
 }) {
   const { sense, card, isNew } = item
   const example = sense.examples[0]
+  // The memory hook written in the Oficina, shown after answering.
+  const mnemonic = useLiveQuery(() => db.mnemonics.get(sense.id), [sense.id])
   const [mode, setMode] = useState(card.mode)
   const [knownAttempt, setKnownAttempt] = useState(false)
   const [usedTranslation, setUsedTranslation] = useState(false)
@@ -257,6 +260,7 @@ function CardView({ item, accent, soundEffects, onDone }: {
             {check === 'typo' && `✔ Quase! Você escreveu "${typed}"`}
             {check === 'wrong' && (typed.trim() ? `✘ Você respondeu "${typed}". A resposta era "${example.answer}"` : `✘ A resposta era "${example.answer}"`)}
           </p>
+          {mnemonic && <p className="mnemonic">⚓ Sua âncora: {mnemonic.text}</p>}
           <div className="word-line">
             <strong className="lemma tappable" role="button" tabIndex={0} onClick={() => setLookup(sense.lemma)} onKeyDown={(e) => e.key === 'Enter' && setLookup(sense.lemma)} title="Ver no dicionário">{sense.lemma} <span className="lookup-icon" aria-hidden="true">📖</span></strong>
           </div>

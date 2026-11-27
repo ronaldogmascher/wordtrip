@@ -2,6 +2,7 @@ import { useLiveQuery } from 'dexie-react-hooks'
 import { Link } from 'react-router-dom'
 import TrafficLight from '../components/TrafficLight.tsx'
 import { db } from '../db/db.ts'
+import { pickWeakWords, workshopReason, type WorkshopReason } from '../workshop/workshop.ts'
 import { dayPlan, localDate } from '../study/session.ts'
 
 export default function Home() {
@@ -11,6 +12,13 @@ export default function Home() {
     return dayPlan(new Date())
   })
   const today = useLiveQuery(() => db.days.get(localDate(new Date())))
+  const workshop = useLiveQuery(async () => {
+    const [cards, reviews, last, bosses] = await Promise.all([
+      db.cards.toArray(), db.reviews.toArray(), db.workshops.orderBy('at').last(), db.bossAttempts.toArray(),
+    ])
+    const now = new Date()
+    return workshopReason(pickWeakWords(cards, reviews, now).length, last, bosses, now)
+  })
 
   return (
     <section className="screen">
@@ -53,6 +61,8 @@ export default function Home() {
         )}
       </div>
 
+      {workshop && <WorkshopInvite reason={workshop} />}
+
       <div className="card">
         <h2>Treinos livres</h2>
         <p className="muted">Fora da rota, sem limite diário.</p>
@@ -60,6 +70,7 @@ export default function Home() {
           <Link className="button" to="/numeros">🔢 Números e horas</Link>
           <Link className="button" to="/ipa">🗣️ Trilha de IPA</Link>
           <Link className="button" to="/gramatica">📝 Gramática</Link>
+          <Link className="button" to="/oficina">🔧 Oficina</Link>
         </div>
       </div>
 
@@ -68,5 +79,21 @@ export default function Home() {
         <TrafficLight />
       </div>
     </section>
+  )
+}
+
+const INVITE: Record<WorkshopReason, string> = {
+  first: 'Algumas palavras estão escapando da memória. Que tal levar o motorhome para a Oficina e reforçar essas peças?',
+  monthly: 'Já faz um mês desde a última revisão na Oficina. Hora de reforçar as palavras que você mais esquece!',
+  city: 'Cidade concluída! Antes de seguir viagem, passe na Oficina para reforçar as palavras que mais deram trabalho.',
+}
+
+function WorkshopInvite({ reason }: { reason: WorkshopReason }) {
+  return (
+    <div className="card workshop-invite">
+      <h2>🔧 Parada na Oficina</h2>
+      <p>{INVITE[reason]}</p>
+      <Link className="button primary" to="/oficina">Ir para a Oficina</Link>
+    </div>
   )
 }

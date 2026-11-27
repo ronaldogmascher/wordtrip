@@ -6,6 +6,7 @@ import ExplorerForm from './screens/ExplorerForm.tsx'
 import Home from './screens/Home.tsx'
 import Ipa from './screens/Ipa.tsx'
 import Grammar from './screens/Grammar.tsx'
+import Workshop from './screens/Workshop.tsx'
 import Journal from './screens/Journal.tsx'
 import Numbers from './screens/Numbers.tsx'
 import Placeholder from './screens/Placeholder.tsx'
@@ -39,6 +40,7 @@ export default function App() {
           <Route path="/numeros" element={<Numbers />} />
           <Route path="/ipa" element={<Ipa />} />
           <Route path="/gramatica" element={<Grammar />} />
+          <Route path="/oficina" element={<Workshop />} />
           <Route path="/ajustes" element={<Settings />} />
         </Routes>
       </main>
