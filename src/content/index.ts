@@ -4,9 +4,11 @@ import { phase02 } from './en/phases/02-sao-paulo.ts'
 import { phase03 } from './en/phases/03-rio.ts'
 import { phase04 } from './en/phases/04-ouro-preto.ts'
 import { phase05 } from './en/phases/05-salvador.ts'
+import { phase06 } from './en/phases/06-lencois.ts'
+import { phase07 } from './en/phases/07-noronha.ts'
 import type { Phase, Sense } from './types.ts'
 
-export const phases: Phase[] = [phase01, phase02, phase03, phase04, phase05]
+export const phases: Phase[] = [phase01, phase02, phase03, phase04, phase05, phase06, phase07]
 export const cities = citiesA1
 
 const senseById = new Map<string, Sense>()
