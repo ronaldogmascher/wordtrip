@@ -72,6 +72,11 @@ export function applyReview(
   return { ...card, fsrs: next, mode, choiceStreak, typingFailStreak }
 }
 
+/** Plain FSRS step, for cards outside the word route (e.g. IPA sounds). */
+export function scheduleFsrs(card: FsrsCard, now: Date, rating: Grade): FsrsCard {
+  return scheduler.next(card, now, rating).card
+}
+
 /** "Já sei": the learner answered a new card right on the first try, without help. */
 export function applyKnownShortcut(card: StudyCard, now: Date): StudyCard {
   const once = scheduler.next(card.fsrs, now, Rating.Easy).card
