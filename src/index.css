@@ -133,3 +133,16 @@ button.icon { border: 0; background: none; font-size: 1.2rem; padding: 0 4px; }
 details.readme summary { font-weight: 600; cursor: pointer; }
 details.readme ul { padding-left: 20px; margin: 8px 0; }
 details.readme li { margin: 4px 0; }
+
+/* Traffic-light badge (color + icon) on study cards. */
+.study-meta { align-items: center; flex-wrap: wrap; }
+.study-meta-light { margin-left: auto; }
+.light-badge { display: inline-flex; align-items: center; gap: 6px; padding: 2px 10px 2px 4px; border-radius: 999px; font-size: 0.8rem; font-weight: 600; }
+.light-dot { width: 18px; height: 18px; border-radius: 50%; display: grid; place-items: center; color: #fff; font-size: 0.65rem; }
+.light-discovering { background: color-mix(in srgb, var(--red) 15%, transparent); }
+.light-discovering .light-dot { background: var(--red); }
+.light-learning { background: color-mix(in srgb, var(--yellow) 18%, transparent); }
+.light-learning .light-dot { background: var(--yellow); }
+.light-learned { background: color-mix(in srgb, var(--green) 15%, transparent); }
+.light-learned .light-dot { background: var(--green); }
+.light-change { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin: 4px 0; }
