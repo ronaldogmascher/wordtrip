@@ -4,6 +4,9 @@ import { db, DEFAULT_SETTINGS, type Settings as AppSettings } from '../db/db.ts'
 import { PENALTY, WRONG_ANSWER_CAP } from '../study/scoring.ts'
 import { getTheme, setTheme, type ThemeChoice } from '../theme.ts'
 
+const MIN_NEW_PER_DAY = 5
+const MAX_NEW_PER_DAY = 50
+
 function Segmented<T extends string>({ value, options, onChange, label }: {
   value: T
   options: { value: T; label: string }[]
@@ -64,16 +67,20 @@ export default function Settings() {
 
           <div className="card settings-group">
             <h2>Palavras novas por dia</h2>
+            <label htmlFor="new-per-day">
+              <strong>{Math.max(MIN_NEW_PER_DAY, settings.newPerDay)}</strong> palavras novas
+            </label>
             <input
-              className="number-input"
-              type="number"
-              min={1}
-              max={50}
-              value={settings.newPerDay}
-              onChange={(e) => update({ newPerDay: Math.max(1, Math.min(50, Number(e.target.value) || 1)) })}
-              aria-label="Palavras novas por dia"
+              id="new-per-day"
+              className="slider-plain"
+              type="range"
+              min={MIN_NEW_PER_DAY}
+              max={MAX_NEW_PER_DAY}
+              step={5}
+              value={Math.max(MIN_NEW_PER_DAY, settings.newPerDay)}
+              onChange={(e) => update({ newPerDay: Number(e.target.value) })}
             />
-            <p className="muted">Revisões não têm limite. O padrão é 15 novas por dia.</p>
+            <p className="muted">De 5 a 50. Revisões não têm limite. O padrão é 15 novas por dia.</p>
           </div>
         </>
       )}
