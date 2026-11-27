@@ -1,6 +1,5 @@
 import { useLiveQuery } from 'dexie-react-hooks'
-import { useEffect, useState } from 'react'
-import { MUSIC_THEMES, startMusic, stopMusic, type MusicThemeId } from '../audio/music.ts'
+import { useState } from 'react'
 import { db, getSettings, type Settings as AppSettings } from '../db/db.ts'
 import { PENALTY, WRONG_ANSWER_CAP } from '../study/scoring.ts'
 import { getTheme, setTheme, type ThemeChoice } from '../theme.ts'
@@ -94,16 +93,7 @@ export default function Settings() {
               />
               🔔 Efeitos sonoros de acerto e erro
             </label>
-            <label className="toggle">
-              <input
-                type="checkbox"
-                checked={settings.backgroundMusic}
-                onChange={(e) => update({ backgroundMusic: e.target.checked })}
-              />
-              🎵 Música de viagem na tela inicial
-            </label>
-            <MusicPicker value={settings.musicTheme} onChange={(musicTheme) => update({ musicTheme })} />
-            <p className="muted">A música começa quando você toca na tela (regra dos navegadores). Se o celular estiver no silencioso, os sons podem não tocar.</p>
+            <p className="muted">Se o celular estiver no silencioso, os sons podem não tocar.</p>
           </div>
         </>
       )}
@@ -126,40 +116,3 @@ export default function Settings() {
   )
 }
 
-/** Lets the learner hear each music theme and pick the one for the home screen. */
-function MusicPicker({ value, onChange }: { value: MusicThemeId; onChange: (id: MusicThemeId) => void }) {
-  const [previewing, setPreviewing] = useState<MusicThemeId | null>(null)
-
-  // Stop the preview when leaving the screen.
-  useEffect(() => () => stopMusic(), [])
-
-  function togglePreview(id: MusicThemeId) {
-    if (previewing === id) {
-      stopMusic()
-      setPreviewing(null)
-    } else {
-      startMusic(id)
-      setPreviewing(id)
-    }
-  }
-
-  return (
-    <fieldset className="music-picker">
-      <legend>Escolha a música</legend>
-      {MUSIC_THEMES.map((t) => (
-        <div key={t.id} className="music-option">
-          <label>
-            <input type="radio" name="music-theme" checked={value === t.id} onChange={() => onChange(t.id)} />
-            <span>
-              <strong>{t.label}</strong>
-              <span className="muted"> · {t.description}</span>
-            </span>
-          </label>
-          <button type="button" className="say" onClick={() => togglePreview(t.id)} aria-label={`Ouvir ${t.label}`}>
-            {previewing === t.id ? '⏹ Parar' : '▶ Ouvir'}
-          </button>
-        </div>
-      ))}
-    </fieldset>
-  )
-}

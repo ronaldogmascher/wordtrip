@@ -1,9 +1,7 @@
 import { useLiveQuery } from 'dexie-react-hooks'
 import { Link } from 'react-router-dom'
 import TrafficLight from '../components/TrafficLight.tsx'
-import { DEFAULT_MUSIC_THEME } from '../audio/music.ts'
-import { useHomeMusic } from '../audio/useHomeMusic.ts'
-import { db, getSettings } from '../db/db.ts'
+import { db } from '../db/db.ts'
 import { dayPlan, localDate } from '../study/session.ts'
 
 export default function Home() {
@@ -13,8 +11,6 @@ export default function Home() {
     return dayPlan(new Date())
   })
   const today = useLiveQuery(() => db.days.get(localDate(new Date())))
-  const settings = useLiveQuery(getSettings)
-  useHomeMusic(settings?.backgroundMusic ?? false, settings?.musicTheme ?? DEFAULT_MUSIC_THEME)
 
   return (
     <section className="screen">
