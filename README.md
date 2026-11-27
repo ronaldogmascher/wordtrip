@@ -39,6 +39,16 @@ WordTrip fixes this by making **each card one specific meaning (sense)** of a wo
 - Browser speech synthesis for audio
 - Open data: WordNet, Wiktionary, Tatoeba, open frequency/CEFR lists
 - Hosted for free on GitHub Pages
+- Built with Vite, React and TypeScript
+
+## Running locally
+
+```bash
+npm install
+npm run dev
+```
+
+The app is deployed to GitHub Pages automatically on every push to `main`.
 
 ## How this project is built
 
