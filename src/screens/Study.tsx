@@ -12,6 +12,8 @@ import { canSpeak, speak } from '../study/speech.ts'
 import Flag from '../components/Flag.tsx'
 import LightBadge from '../components/LightBadge.tsx'
 import VerbFormsTable from '../components/VerbFormsTable.tsx'
+import TappableText from '../components/TappableText.tsx'
+import WordPopup from '../components/WordPopup.tsx'
 
 /** A card scheduled again within this window is repeated at the end of the session. */
 const AGAIN_IN_SESSION_MS = 15 * 60 * 1000
@@ -104,6 +106,7 @@ function CardView({ item, accent, onDone }: { item: QueueItem; accent: Accent; o
   const [selfScore, setSelfScore] = useState(8)
   const [startedAt] = useState(() => Date.now())
   const [answeredAt, setAnsweredAt] = useState<Date | null>(null)
+  const [lookup, setLookup] = useState<string | null>(null)
 
   // Shuffled once per card (the component is re-mounted for every card).
   const [options] = useState(() => {
@@ -169,6 +172,7 @@ function CardView({ item, accent, onDone }: { item: QueueItem; accent: Accent; o
 
   return (
     <div className="card study">
+      {lookup && <WordPopup word={lookup} onClose={() => setLookup(null)} />}
       <div className="study-meta">
         <span className="badge">{POS_PT[sense.pos]}</span>
         {example.tense && <span className="badge badge-tense">{example.tense}</span>}
@@ -176,15 +180,15 @@ function CardView({ item, accent, onDone }: { item: QueueItem; accent: Accent; o
         <span className="study-meta-light"><LightBadge light={lightOf(card.fsrs)} /></span>
       </div>
 
-      <p className="definition">{sense.definition}</p>
+      <p className="definition"><TappableText text={sense.definition} onWord={setLookup} /></p>
       {usedTranslation && <p className="translation"><Flag country="BR" /> {sense.definitionPt}</p>}
 
       <p className="sentence">
-        {before}
+        <TappableText text={before} onWord={setLookup} />
         <span className={`gap ${answered ? (correct ? 'gap-ok' : 'gap-wrong') : ''}`}>
           {answered ? example.answer : usedHint ? hintFor(example.answer) : '____'}
         </span>
-        {after}
+        <TappableText text={after ?? ''} onWord={setLookup} />
       </p>
       {answered && canSpeak() && (
         <div className="audio-row">

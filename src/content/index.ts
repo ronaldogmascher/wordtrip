@@ -26,3 +26,14 @@ export function getPhaseOfSense(id: string): Phase | undefined {
 export function allSenses(): Sense[] {
   return [...senseById.values()]
 }
+
+const sensesByLemma = new Map<string, Sense[]>()
+for (const s of senseById.values()) {
+  const key = s.lemma.toLowerCase()
+  sensesByLemma.set(key, [...(sensesByLemma.get(key) ?? []), s])
+}
+
+/** Senses of the app's own content for a lemma (e.g. "charge" → its route senses). */
+export function getSensesByLemma(lemma: string): Sense[] {
+  return sensesByLemma.get(lemma.toLowerCase()) ?? []
+}
