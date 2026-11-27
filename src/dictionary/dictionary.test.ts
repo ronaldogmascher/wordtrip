@@ -36,3 +36,10 @@ describe('Dictionary', () => {
     expect(dict.search('t')).toEqual(['travel'])
   })
 })
+
+describe('grammar words', () => {
+  it('resolves words that WordNet does not cover', () => {
+    expect(dict.resolve('Something')).toEqual(['something'])
+    expect(dict.resolve('the')).toEqual(['the'])
+  })
+})

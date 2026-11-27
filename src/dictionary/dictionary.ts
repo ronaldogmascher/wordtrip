@@ -1,3 +1,4 @@
+import { functionWord } from './functionWords.ts'
 import { lemmaCandidates, normalizeWord } from './lemmatize.ts'
 
 // Offline English dictionary (WordNet 3.1). The data file (~5 MB compressed) is NOT part of the
@@ -45,7 +46,7 @@ export class Dictionary {
 
   /** Dictionary lemmas for a word as it appears in a text ("went" → ["go"], "charges" → ["charge"]). */
   resolve(word: string): string[] {
-    return lemmaCandidates(word).filter((c) => this.has(c))
+    return lemmaCandidates(word).filter((c) => this.has(c) || functionWord(c) !== undefined)
   }
 
   /** Lemmas starting with the typed text, alphabetically (for the search box). */

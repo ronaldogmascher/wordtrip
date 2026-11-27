@@ -242,7 +242,7 @@ function CardView({ item, accent, onDone }: { item: QueueItem; accent: Accent; o
             {check === 'wrong' && (typed.trim() ? `✘ Você respondeu "${typed}". A resposta era "${example.answer}"` : `✘ A resposta era "${example.answer}"`)}
           </p>
           <div className="word-line">
-            <strong className="lemma">{sense.lemma}</strong>
+            <strong className="lemma tappable" role="button" tabIndex={0} onClick={() => setLookup(sense.lemma)} onKeyDown={(e) => e.key === 'Enter' && setLookup(sense.lemma)} title="Ver no dicionário">{sense.lemma} <span className="lookup-icon" aria-hidden="true">📖</span></strong>
           </div>
           {sense.ipaUS && <div className="ipa-list">
             {(accent === 'US' ? (['US', 'UK'] as const) : (['UK', 'US'] as const)).map((a) => (
