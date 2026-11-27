@@ -226,3 +226,12 @@ button.primary.inline { margin-top: 0; }
 .ipa-reveal { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
 .grammar-rules { padding-left: 18px; display: flex; flex-direction: column; gap: 4px; }
 .time-input { font-size: 2rem; text-align: center; letter-spacing: 0.1em; font-variant-numeric: tabular-nums; }
+.stations { list-style: none; padding: 0; display: flex; flex-wrap: wrap; gap: 6px; margin: 4px 0 8px; }
+.stations li { font-size: 0.85rem; padding: 4px 10px; border-radius: 999px; border: 1px solid var(--border); color: var(--muted); }
+.stations li.current { background: var(--primary); border-color: var(--primary); color: #fff; font-weight: 600; }
+.stations li.done { color: var(--text); }
+.workshop-word { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; }
+.workshop-word .translation { flex-basis: 100%; margin: 0; }
+.workshop-text { width: 100%; box-sizing: border-box; font: inherit; padding: 10px; border-radius: 12px; border: 1px solid var(--border); background: var(--surface); color: var(--text); }
+.mnemonic { background: var(--bg); border-left: 4px solid var(--primary); border-radius: 8px; padding: 8px 10px; }
+.workshop-invite { border: 2px solid var(--primary); }

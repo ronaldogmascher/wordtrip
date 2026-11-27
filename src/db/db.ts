@@ -167,6 +167,22 @@ export interface IpaReview {
   correct: boolean
 }
 
+/** A memory hook the learner wrote for a word in the Oficina ("parece com…"). */
+export interface Mnemonic {
+  senseId: string
+  text: string
+  updatedAt: Date
+}
+
+/** One Oficina (reinforcement workshop) session, kept to know when to suggest the next one. */
+export interface WorkshopSession {
+  id?: number
+  at: Date
+  senseIds: string[]
+  /** Sense ids the learner got right in the "produce the word" step. */
+  produced: string[]
+}
+
 export class WordTripDB extends Dexie {
   profile!: EntityTable<Profile, 'id'>
   settings!: EntityTable<Settings, 'id'>
@@ -179,6 +195,8 @@ export class WordTripDB extends Dexie {
   detours!: EntityTable<Detour, 'id'>
   ipaCards!: EntityTable<IpaCard, 'id'>
   ipaReviews!: EntityTable<IpaReview, 'id'>
+  mnemonics!: EntityTable<Mnemonic, 'senseId'>
+  workshops!: EntityTable<WorkshopSession, 'id'>
 
   constructor(name = 'wordtrip') {
     super(name)
@@ -199,6 +217,10 @@ export class WordTripDB extends Dexie {
     this.version(3).stores({
       ipaCards: 'id, fsrs.due',
       ipaReviews: '++id, soundId, at',
+    })
+    this.version(4).stores({
+      mnemonics: 'senseId',
+      workshops: '++id, at',
     })
   }
 }
