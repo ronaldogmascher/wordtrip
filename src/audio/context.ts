@@ -32,3 +32,39 @@ export function tone(
   osc.start(start)
   osc.stop(start + duration + 0.05)
 }
+
+/** A short burst of filtered noise, used for soft drums (kick, snare, hi-hat). */
+export function noise(
+  ac: AudioContext,
+  destination: AudioNode,
+  { start, duration, volume = 0.1, highpass = 6000 }: { start: number; duration: number; volume?: number; highpass?: number },
+): void {
+  const length = Math.max(1, Math.floor(ac.sampleRate * duration))
+  const buffer = ac.createBuffer(1, length, ac.sampleRate)
+  const data = buffer.getChannelData(0)
+  for (let i = 0; i < length; i++) data[i] = Math.random() * 2 - 1
+  const src = ac.createBufferSource()
+  src.buffer = buffer
+  const filter = ac.createBiquadFilter()
+  filter.type = 'highpass'
+  filter.frequency.value = highpass
+  const gain = ac.createGain()
+  gain.gain.setValueAtTime(volume, start)
+  gain.gain.exponentialRampToValueAtTime(0.0001, start + duration)
+  src.connect(filter).connect(gain).connect(destination)
+  src.start(start)
+  src.stop(start + duration + 0.05)
+}
+
+/** A soft kick drum: a sine wave that drops quickly in pitch. */
+export function kick(ac: AudioContext, destination: AudioNode, start: number, volume = 0.25): void {
+  const osc = ac.createOscillator()
+  const gain = ac.createGain()
+  osc.frequency.setValueAtTime(120, start)
+  osc.frequency.exponentialRampToValueAtTime(45, start + 0.15)
+  gain.gain.setValueAtTime(volume, start)
+  gain.gain.exponentialRampToValueAtTime(0.0001, start + 0.3)
+  osc.connect(gain).connect(destination)
+  osc.start(start)
+  osc.stop(start + 0.35)
+}
