@@ -26,7 +26,7 @@ WordTrip fixes this by making **each card one specific meaning (sense)** of a wo
 - **Road-trip journey:** each CEFR level is a leg of a motorhome trip from Brazil through Latin America and North America to New York. Each phase is a city with its landmark illustration, and each city ends with a boss battle. You pick your character, name your motorhome and bring an optional pet.
 - **Side trips:** free practice by topic (travel, food, shopping...) outside the main route; words keep their history when they reappear on the journey.
 - **Explorer mode:** save words you meet in podcasts and books, pick the right sense from an offline dictionary (WordNet), and review them with spaced repetition.
-- **Traffic-light progress:** red = learning, yellow = young, green = learned (21+ day interval).
+- **Traffic-light progress:** red = discovering, yellow = learning, green = learned (21+ day interval).
 - **Dashboard:** words learned, hardest words, study time, and performance by topic.
 - **Pomodoro timer, daily plan, streaks, XP and personal rewards.**
 - **100% offline and free:** your data stays on your device, with manual backup export/import.

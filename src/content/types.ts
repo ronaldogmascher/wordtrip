@@ -41,13 +41,34 @@ export type Topic = (typeof TOPICS)[number]
 
 export type Area = 'general' | 'business' | 'technology' | 'academic'
 
+/** Verb tense (or structure) of an example sentence, shown as a tag on the card. */
+export type Tense =
+  | 'present simple'
+  | 'present continuous'
+  | 'past simple'
+  | 'future (will)'
+  | 'imperative'
+  | 'modal verb'
+
 /** A sentence with exactly one blank, written as `____`. */
 export interface GapSentence {
   text: string
+  /** Tense of the sentence; omitted when it has no verb (e.g. "Happy New Year!"). */
+  tense?: Tense
   /** The exact word(s) that fill the blank. */
   answer: string
   /** Portuguese translation of the full sentence (optional). */
   pt?: string
+}
+
+/** Main forms of a verb, shown after answering. */
+export interface VerbForms {
+  /** Third person singular: she ____. */
+  thirdPerson: string
+  past: string
+  pastParticiple: string
+  ing: string
+  irregular: boolean
 }
 
 export interface Sense {
@@ -69,6 +90,8 @@ export interface Sense {
   /** Short Portuguese gloss shown after answering. */
   translationPt: string
   examples: GapSentence[]
+  /** Only for verbs. */
+  forms?: VerbForms
   synonyms: string[]
   antonym?: string
   topics: Topic[]

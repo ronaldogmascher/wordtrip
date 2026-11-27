@@ -15,7 +15,7 @@ in the project memory.
   vite-plugin-pwa. No backend, no paid APIs: everything must work offline.
 - Hosted on GitHub Pages at `/wordtrip/` (see `base` in `vite.config.ts`), deployed by
   `.github/workflows/deploy.yml` on every push to `main`.
-- Traffic-light colors are used everywhere: red = learning, yellow = young (interval 1–20 days),
+- Traffic-light colors are used everywhere: red = discovering (new or forgotten), yellow = learning (interval 1–20 days),
   green = learned (interval ≥ 21 days). Always pair colors with icons.
 
 ## Commands

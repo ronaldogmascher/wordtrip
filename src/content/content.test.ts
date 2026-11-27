@@ -38,3 +38,9 @@ describe('content', () => {
     expect(s.definition.toLowerCase().split(/\W+/)).not.toContain(s.lemma.toLowerCase())
   })
 })
+
+describe('verb forms', () => {
+  it('gives every verb its forms', () => {
+    for (const s of allSenses().filter((s) => s.pos === 'verb')) expect(s.forms, s.id).toBeDefined()
+  })
+})
