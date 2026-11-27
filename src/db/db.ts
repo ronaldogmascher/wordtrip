@@ -152,6 +152,24 @@ export interface BossAttempt {
   passed: boolean
 }
 
+/** Spaced-repetition card for one IPA sound (Trilha de IPA). */
+export interface IpaCard {
+  /** Sound id from `src/ipa/sounds.ts`. */
+  id: string
+  fsrs: FsrsCard
+  createdAt: Date
+}
+
+/** One answer in the IPA ear training, kept for statistics. */
+export interface IpaReview {
+  id?: number
+  soundId: string
+  at: Date
+  /** 'hear' = heard a word and picked its transcription; 'symbol' = saw the symbol and picked a word. */
+  kind: 'hear' | 'symbol'
+  correct: boolean
+}
+
 export class WordTripDB extends Dexie {
   profile!: EntityTable<Profile, 'id'>
   settings!: EntityTable<Settings, 'id'>
@@ -162,6 +180,8 @@ export class WordTripDB extends Dexie {
   rewards!: EntityTable<Reward, 'phaseId'>
   bossAttempts!: EntityTable<BossAttempt, 'id'>
   detours!: EntityTable<Detour, 'id'>
+  ipaCards!: EntityTable<IpaCard, 'id'>
+  ipaReviews!: EntityTable<IpaReview, 'id'>
 
   constructor(name = 'wordtrip') {
     super(name)
@@ -178,6 +198,10 @@ export class WordTripDB extends Dexie {
     this.version(2).stores({
       explorer: '++id, status, word, createdAt, detourId',
       detours: '++id, createdAt',
+    })
+    this.version(3).stores({
+      ipaCards: 'id, fsrs.due',
+      ipaReviews: '++id, soundId, at',
     })
   }
 }

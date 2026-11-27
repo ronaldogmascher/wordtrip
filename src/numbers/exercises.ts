@@ -113,7 +113,7 @@ function timeQuestion(rng: Rng, level: Level): Exercise {
   if (rng() < 0.5) {
     const said = rng() < 0.5 ? digital : traditional
     return {
-      category: 'times', instruction: 'Ouça e digite a hora (ex.: 7:45).', shown: '', speech: `It's ${said}.`,
+      category: 'times', instruction: 'Ouça e digite a hora (ex.: 7:45 ou 745).', shown: '', speech: `It's ${said}.`,
       mode: 'type', answer: shown, check: (t) => digitsOnly(t).replace(/^0/, '') === digitsOnly(shown), words: both,
       tip: 'Em inglês, "half past seven" = 7:30 e "a quarter to eight" = 7:45.',
     }

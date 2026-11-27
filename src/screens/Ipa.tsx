@@ -1,19 +1,21 @@
 import { useEffect, useState } from 'react'
 import { playCorrect, playWrong } from '../audio/effects.ts'
-import { getSettings, type Accent } from '../db/db.ts'
-import { MINIMAL_PAIRS, PT_MATCH, SOUNDS, type MinimalPair, type Sound, type SoundKind } from '../ipa/sounds.ts'
+import { useLiveQuery } from 'dexie-react-hooks'
+import LightBadge from '../components/LightBadge.tsx'
+import { db, getSettings, type Accent, type IpaCard } from '../db/db.ts'
+import { MINIMAL_PAIRS, PT_MATCH, SOUNDS, type Sound, type SoundKind } from '../ipa/sounds.ts'
+import { answerIpaCard, makeSession, symbolOf, transcriptionOf, type IpaQuestion } from '../ipa/training.ts'
+import { lightOf } from '../study/scheduler.ts'
 import { canSpeak, speak } from '../study/speech.ts'
 
-// Trilha de IPA: the sounds of English compared with Portuguese, plus ear training with
-// minimal pairs (sheep / ship).
+// Trilha de IPA: the sounds of English compared with Portuguese, plus training where every
+// sound is a spaced-repetition card (hear → pick the transcription, see the symbol → pick the word).
 
 const GROUPS: { kind: SoundKind; title: string }[] = [
   { kind: 'vowel', title: 'Vogais' },
   { kind: 'diphthong', title: 'Ditongos' },
   { kind: 'consonant', title: 'Consoantes' },
 ]
-
-const ROUNDS = 10
 
 export default function Ipa() {
   const [accent, setAccent] = useState<Accent>('US')
@@ -37,7 +39,7 @@ export default function Ipa() {
       </p>
       <div className="segmented" role="group" aria-label="Seção">
         <button aria-pressed={tab === 'sounds'} onClick={() => setTab('sounds')}>📚 Sons</button>
-        <button aria-pressed={tab === 'train'} onClick={() => setTab('train')}>👂 Treinar ouvido</button>
+        <button aria-pressed={tab === 'train'} onClick={() => setTab('train')}>👂 Treinar</button>
       </div>
       {tab === 'sounds' ? <SoundList accent={accent} /> : <EarTraining accent={accent} soundEffects={soundEffects} />}
     </section>
@@ -54,6 +56,8 @@ function Say({ word, accent, label }: { word: string; accent: Accent; label?: st
 }
 
 function SoundList({ accent }: { accent: Accent }) {
+  const cards = useLiveQuery(() => db.ipaCards.toArray()) ?? []
+  const byId = new Map(cards.map((c) => [c.id, c]))
   return (
     <>
       <p className="muted ipa-legend">
@@ -62,14 +66,14 @@ function SoundList({ accent }: { accent: Accent }) {
       {GROUPS.map((g) => (
         <div key={g.kind} className="card">
           <h2>{g.title}</h2>
-          {SOUNDS.filter((s) => s.kind === g.kind).map((s) => <SoundItem key={s.id} sound={s} accent={accent} />)}
+          {SOUNDS.filter((s) => s.kind === g.kind).map((s) => <SoundItem key={s.id} sound={s} accent={accent} card={byId.get(s.id)} />)}
         </div>
       ))}
     </>
   )
 }
 
-function SoundItem({ sound, accent }: { sound: Sound; accent: Accent }) {
+function SoundItem({ sound, accent, card }: { sound: Sound; accent: Accent; card?: IpaCard }) {
   const symbol = accent === 'US' ? sound.us : sound.uk
   const other = accent === 'US' ? sound.uk : sound.us
   const pairs = MINIMAL_PAIRS.filter((p) => p.sounds.includes(sound.id))
@@ -79,6 +83,7 @@ function SoundItem({ sound, accent }: { sound: Sound; accent: Accent }) {
         <span className="ipa-symbol">/{symbol}/</span>
         <span>{sound.examples[0].word}</span>
         <span className="ipa-match" title={PT_MATCH[sound.match].label}>{PT_MATCH[sound.match].icon}</span>
+        {card && <LightBadge light={lightOf(card.fsrs)} />}
       </summary>
       <p>{sound.pt}</p>
       {other !== symbol && <p className="muted">No sotaque {accent === 'US' ? 'britânico' : 'americano'}: /{other}/</p>}
@@ -104,75 +109,94 @@ function SoundItem({ sound, accent }: { sound: Sound; accent: Accent }) {
   )
 }
 
-interface Round {
-  pair: MinimalPair
-  target: 'a' | 'b'
-}
-
-function makeRounds(): Round[] {
-  const shuffled = [...MINIMAL_PAIRS].sort(() => Math.random() - 0.5).slice(0, ROUNDS)
-  return shuffled.map((pair) => ({ pair, target: Math.random() < 0.5 ? 'a' : 'b' }))
-}
-
 function EarTraining({ accent, soundEffects }: { accent: Accent; soundEffects: boolean }) {
-  const [rounds, setRounds] = useState(makeRounds)
+  const cards = useLiveQuery(() => db.ipaCards.toArray())
+  const [questions, setQuestions] = useState<IpaQuestion[] | null>(null)
   const [index, setIndex] = useState(0)
   const [score, setScore] = useState(0)
-  const [picked, setPicked] = useState<'a' | 'b' | null>(null)
+  const [picked, setPicked] = useState<string | null>(null)
 
-  const round = rounds[index]
-  const word = round ? round.pair[round.target] : ''
+  // Build the session once the cards are loaded; "Treinar de novo" builds a new one.
+  useEffect(() => {
+    if (questions === null) void db.ipaCards.toArray().then((all) => setQuestions(makeSession(all, accent)))
+  }, [questions, accent])
+
+  const question = questions?.[index]
+  const hearWord = question?.kind === 'hear' ? question.word : ''
 
   useEffect(() => {
-    if (word && canSpeak()) speak(word, accent)
-  }, [word, accent])
+    if (hearWord && canSpeak()) speak(hearWord, accent)
+  }, [hearWord, accent, index])
 
   if (!canSpeak()) return <div className="card"><p>Este navegador não tem voz para ler as palavras em inglês.</p></div>
+  if (!cards || !questions) return <div className="card"><p className="muted">Carregando…</p></div>
 
-  if (!round) {
+  if (!question) {
     return (
       <div className="card">
         <h2>Fim do treino!</h2>
-        <p><strong>{score}</strong> de {rounds.length} certas.</p>
-        <button className="button primary" onClick={() => { setRounds(makeRounds()); setIndex(0); setScore(0); setPicked(null) }}>
+        <p><strong>{score}</strong> de {questions.length} certas.</p>
+        <p className="muted">Cada som virou um card com repetição espaçada: os que você errou voltam antes.</p>
+        <button className="button primary" onClick={() => { setQuestions(null); setIndex(0); setScore(0); setPicked(null) }}>
           Treinar de novo
         </button>
       </div>
     )
   }
 
-  function choose(option: 'a' | 'b') {
+  const q = question
+  async function choose(option: string) {
     setPicked(option)
-    const ok = option === round.target
+    const ok = option === q.answer
     if (ok) setScore((s) => s + 1)
     if (soundEffects) {
       if (ok) playCorrect()
       else playWrong()
     }
+    const now = new Date()
+    const card = await db.ipaCards.get(q.sound.id)
+    await db.ipaCards.put(answerIpaCard(card, q.sound.id, ok, now))
+    await db.ipaReviews.add({ soundId: q.sound.id, at: now, kind: q.kind, correct: ok })
+    // The word is read after the answer in both kinds, so symbol and sound stay together.
+    if (q.kind === 'symbol') setTimeout(() => speak(q.word, accent), 450)
   }
 
-  const { pair } = round
+  const example = q.sound.examples.find((e) => e.word === q.word)
+  const card = cards.find((c) => c.id === q.sound.id)
   return (
     <div className="card study">
-      <p className="muted">Rodada {index + 1} de {rounds.length} · {score} certas</p>
-      <p className="definition">Ouça e escolha a palavra que você ouviu.</p>
-      <div className="audio-row">
-        <button onClick={() => speak(word, accent)}>🔊 Ouvir</button>
-        <button onClick={() => speak(word, accent, true)}>🐢 Devagar</button>
-      </div>
+      <p className="muted">
+        Rodada {index + 1} de {questions.length} · {score} certas ·{' '}
+        {card ? <LightBadge light={lightOf(card.fsrs)} /> : <span className="badge">som novo</span>}
+      </p>
+      <p className="definition">{q.prompt}</p>
+      {q.kind === 'hear' ? (
+        <div className="audio-row">
+          <button onClick={() => speak(q.word, accent)}>🔊 Ouvir</button>
+          <button onClick={() => speak(q.word, accent, true)}>🐢 Devagar</button>
+        </div>
+      ) : (
+        <p className="big-prompt ipa-big">/{symbolOf(q.sound, accent)}/</p>
+      )}
       {picked === null ? (
-        <div className="choices">
-          <button className="choice" onClick={() => choose('a')}>{pair.a}</button>
-          <button className="choice" onClick={() => choose('b')}>{pair.b}</button>
+        <div className={`ipa-options ${q.kind === 'hear' ? 'ipa-options-symbols' : ''}`}>
+          {q.options.map((o) => (
+            <button key={o} className="choice" onClick={() => void choose(o)}>{o}</button>
+          ))}
         </div>
       ) : (
         <div className="reveal">
-          <p className={`verdict ${picked === round.target ? 'ok' : 'wrong'}`}>
-            {picked === round.target ? '✔ Isso! ' : '✘ Era '}"{word}"
+          <p className={`verdict ${picked === q.answer ? 'ok' : 'wrong'}`}>
+            {picked === q.answer ? '✔ Isso!' : `✘ Era ${q.answer}`}
           </p>
-          <p>
-            <Say word={pair.a} accent={accent} /> = {pair.ptA} · <Say word={pair.b} accent={accent} /> = {pair.ptB}
+          <p className="ipa-reveal">
+            <span className="ipa-big">/{symbolOf(q.sound, accent)}/</span>
+            <span>
+              <Say word={q.word} accent={accent} />{' '}
+              {example && <span className="ipa-symbol">/{transcriptionOf(example, accent)}/</span>}
+            </span>
           </p>
+          <p>{q.sound.pt}</p>
           <button className="button primary" onClick={() => { setIndex((i) => i + 1); setPicked(null) }}>Continuar</button>
         </div>
       )}

@@ -146,11 +146,12 @@ function Question({ exercise, accent, soundEffects, onNext }: {
         <form className="typing" onSubmit={(e) => { e.preventDefault(); submit(typed) }}>
           <input
             autoFocus
-            inputMode={exercise.category === 'prices' || exercise.category === 'times' ? 'decimal' : 'numeric'}
+            // Times need ":" and prices "." or ",", which some phone number pads don't have.
+            inputMode={exercise.category === 'times' ? 'text' : exercise.category === 'prices' ? 'decimal' : 'numeric'}
             autoComplete="off"
             value={typed}
             onChange={(e) => setTyped(e.target.value)}
-            placeholder="Sua resposta"
+            placeholder={exercise.category === 'times' ? 'ex.: 7:45 (ou 745)' : 'Sua resposta'}
             aria-label="Sua resposta"
           />
           <button className="primary" type="submit">Responder</button>

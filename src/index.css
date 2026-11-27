@@ -220,3 +220,7 @@ button.primary.inline { margin-top: 0; }
 .ipa-pairs { display: flex; flex-wrap: wrap; gap: 6px 12px; align-items: center; }
 .ipa-pair { white-space: nowrap; }
 .say { border: 1px solid var(--border); background: var(--surface); color: var(--text); border-radius: 999px; padding: 4px 10px; min-height: 36px; cursor: pointer; }
+.ipa-big { font-family: 'Charis SIL', 'Doulos SIL', 'Noto Sans', serif; font-size: 3rem; font-weight: 700; }
+.ipa-options { display: grid; gap: 8px; }
+.ipa-options-symbols .choice { font-family: 'Charis SIL', 'Doulos SIL', 'Noto Sans', serif; font-size: 1.8rem; padding: 14px; }
+.ipa-reveal { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
