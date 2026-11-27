@@ -1,6 +1,8 @@
 import { NavLink, Route, Routes } from 'react-router-dom'
 import Dictionary from './screens/Dictionary.tsx'
+import ExplorerForm from './screens/ExplorerForm.tsx'
 import Home from './screens/Home.tsx'
+import Journal from './screens/Journal.tsx'
 import Placeholder from './screens/Placeholder.tsx'
 import Settings from './screens/Settings.tsx'
 import Study from './screens/Study.tsx'
@@ -22,7 +24,8 @@ export default function App() {
           <Route path="/" element={<Home />} />
           <Route path="/estudar" element={<Study />} />
           <Route path="/mapa" element={<Placeholder title="Mapa da jornada" text="De Santo André a Nova York. As 12 cidades do Brasil chegam em breve." />} />
-          <Route path="/diario" element={<Placeholder title="Diário de bordo" text="Aqui vão ficar as palavras que você encontrar em podcasts e leituras." />} />
+          <Route path="/diario" element={<Journal />} />
+          <Route path="/diario/completar/:id" element={<ExplorerForm />} />
           <Route path="/painel" element={<Placeholder title="Painel" text="Sua evolução: palavras aprendidas, mais difíceis e tempo de estudo." />} />
           <Route path="/dicionario" element={<Dictionary />} />
           <Route path="/dicionario/:word" element={<Dictionary />} />

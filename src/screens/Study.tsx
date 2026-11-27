@@ -177,6 +177,7 @@ function CardView({ item, accent, onDone }: { item: QueueItem; accent: Accent; o
         <span className="badge">{POS_PT[sense.pos]}</span>
         {example.tense && <span className="badge badge-tense">{example.tense}</span>}
         {isNew && <span className="badge badge-new">nova</span>}
+        {card.source === 'explorer' && <span className="badge">📓 Diário</span>}
         <span className="study-meta-light"><LightBadge light={lightOf(card.fsrs)} /></span>
       </div>
 
@@ -200,7 +201,7 @@ function CardView({ item, accent, onDone }: { item: QueueItem; accent: Accent; o
       {!answered && (
         <>
           <div className="tools">
-            <button onClick={() => setUsedTranslation(true)} disabled={usedTranslation}>Traduzir</button>
+            {sense.definitionPt && <button onClick={() => setUsedTranslation(true)} disabled={usedTranslation}>Traduzir</button>}
             <button onClick={() => setUsedHint(true)} disabled={usedHint}>Dica</button>
             {isNew && mode === 'choice' && !knownAttempt && (
               <button onClick={() => { setKnownAttempt(true); setMode('typing') }}>Já sei</button>
@@ -242,7 +243,7 @@ function CardView({ item, accent, onDone }: { item: QueueItem; accent: Accent; o
           <div className="word-line">
             <strong className="lemma">{sense.lemma}</strong>
           </div>
-          <div className="ipa-list">
+          {sense.ipaUS && <div className="ipa-list">
             {(accent === 'US' ? (['US', 'UK'] as const) : (['UK', 'US'] as const)).map((a) => (
               <div key={a} className={`ipa-row ${a === accent ? '' : 'muted'}`}>
                 <Flag country={a} />
@@ -255,8 +256,13 @@ function CardView({ item, accent, onDone }: { item: QueueItem; accent: Accent; o
                 )}
               </div>
             ))}
-          </div>
-          <p><Flag country="BR" /> <strong>{sense.translationPt}</strong>{example.pt && <span className="muted"> · {example.pt}</span>}</p>
+          </div>}
+          {canSpeak() && !sense.ipaUS && (
+            <div className="audio-row">
+              <button onClick={() => speak(sense.lemma, accent)}>🔊 Ouvir a palavra</button>
+            </div>
+          )}
+          <p><Flag country="BR" /> {sense.translationPt ? <strong>{sense.translationPt}</strong> : <span className="muted">sem tradução ainda (dá para adicionar no Diário)</span>}{example.pt && <span className="muted"> · {example.pt}</span>}</p>
           {sense.forms && <VerbFormsTable lemma={sense.lemma} forms={sense.forms} />}
           {(sense.synonyms.length > 0 || sense.antonym) && (
             <p className="muted">

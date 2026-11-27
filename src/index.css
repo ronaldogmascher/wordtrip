@@ -176,3 +176,19 @@ button.link { border: 0; background: none; padding: 0; color: var(--primary); te
 .sheet-choices button.active { background: var(--primary); color: var(--primary-text); border-color: var(--primary); }
 .tab { min-width: 0; }
 .tab span:last-child { font-size: 0.7rem; white-space: nowrap; }
+
+/* Diário de bordo (Explorer) */
+.capture { display: flex; flex-direction: column; gap: 8px; }
+.capture input, .capture textarea, .capture select { width: 100%; padding: 10px 12px; border-radius: 10px; border: 1px solid var(--border); background: var(--surface); color: var(--text); font: inherit; }
+button.primary.inline { margin-top: 0; }
+.button.small { display: inline-block; padding: 6px 12px; font-size: 0.9rem; }
+.entry-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; }
+.entry-list li { display: flex; justify-content: space-between; gap: 8px; padding: 10px 0; border-top: 1px solid var(--border); }
+.entry-list li:first-child { border-top: 0; }
+.entry-title { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.entry-actions { display: flex; gap: 4px; align-items: flex-start; flex: none; }
+.sense-option { display: flex; gap: 10px; align-items: flex-start; padding: 8px 0; border-top: 1px solid var(--border); }
+.sense-option input { margin-top: 4px; flex: none; }
+.sense-option .badge { margin: 0; }
+.sense-option.disabled { opacity: 0.6; }
+.road-found { background: color-mix(in srgb, var(--primary) 8%, transparent); border-radius: 12px; padding: 10px; margin-bottom: 8px; }

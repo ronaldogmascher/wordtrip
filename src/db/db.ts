@@ -1,5 +1,6 @@
 import Dexie, { type EntityTable } from 'dexie'
 import type { Card as FsrsCard } from 'ts-fsrs'
+import type { GapSentence, PartOfSpeech } from '../content/types.ts'
 
 // Everything the learner produces lives here, in the browser's IndexedDB.
 // Content (words, senses, phases) is static and lives in src/content.
@@ -81,15 +82,32 @@ export interface ReviewEntry {
   durationMs: number
 }
 
+/** A word the learner wrote themselves (Explorer mode, kept in the "Diário de bordo"). */
+export interface ExplorerWord {
+  lemma: string
+  pos: PartOfSpeech
+  /** English definition (chosen from the dictionary or written by the learner). */
+  definition: string
+  /** The learner's sentence with the word replaced by `____`, and the word as written there. */
+  gap: GapSentence
+  /** Portuguese translation, optional (can be added later). */
+  translationPt?: string
+  synonyms: string[]
+}
+
 export interface ExplorerEntry {
   id?: number
+  /** The word as captured. */
   word: string
+  /** Where the learner found it, with the original sentence (optional). */
   sentence?: string
   source?: string
   /** `inbox` = captured quickly, still needs a sense chosen. */
   status: 'inbox' | 'ready'
-  /** Sense id from the built-in content when the word already exists on the route. */
+  /** Set when the word already exists on the route ("encontrada na estrada"): that sense is studied early. */
   senseId?: string
+  /** Set for words that are not in the app's content. */
+  custom?: ExplorerWord
   createdAt: Date
 }
 
