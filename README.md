@@ -62,4 +62,15 @@ I'm building this app with **AI-assisted development using [Claude Code](https:/
 
 ## License
 
-Code: [MIT](LICENSE). Original flashcard content: CC BY-SA 4.0. WordNet data keeps its own license (see above).
+WordTrip is **free to use, study and modify for non-commercial purposes**, with credit. Selling it,
+or using it (or a copy of it) in a commercial product or service, requires written permission from
+the author.
+
+- **Code**: [PolyForm Noncommercial License 1.0.0](LICENSE).
+- **Original flashcard content** (`src/content/`): [CC BY-NC 4.0](CONTENT-LICENSE.md).
+- **WordNet data** keeps its own license (see above).
+
+This makes the project *source-available* rather than open source in the OSI sense. Versions
+published before this change remain available under the MIT license.
+
+For commercial licensing, please open an issue in this repository.
