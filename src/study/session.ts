@@ -2,6 +2,7 @@ import { State } from 'ts-fsrs'
 import { allSenses, phases } from '../content/index.ts'
 import type { Sense } from '../content/types.ts'
 import { db, getSettings, type ReviewEntry, type StudyCard } from '../db/db.ts'
+import { explorerSenses } from '../explorer/explorer.ts'
 import { newStudyCard, retrievability } from './scheduler.ts'
 
 // Backlog protection: above RECOVERY_ON overdue reviews new cards pause,
@@ -40,11 +41,35 @@ export async function dueReviews(now: Date): Promise<StudyCard[]> {
     .sort((a, b) => retrievability(a.fsrs, now) - retrievability(b.fsrs, now))
 }
 
-/** Route senses not studied yet, in the order of the journey. */
-export async function unseenRouteSenses(): Promise<Sense[]> {
+export interface NewSense {
+  sense: Sense
+  source: 'route' | 'explorer'
+}
+
+/**
+ * Senses not studied yet: the learner's own words from the Diário de bordo first (they have
+ * priority within the daily limit), then the route in the order of the journey.
+ */
+export async function unseenSenses(): Promise<NewSense[]> {
   const seen = new Set(await db.cards.toCollection().primaryKeys())
+  const isUnseen = (s: Sense) => !seen.has(`${s.id}#meaning`)
+  const explorer: NewSense[] = (await explorerSenses())
+    .filter(({ sense }) => isUnseen(sense))
+    .map(({ sense }) => ({ sense, source: 'explorer' }))
+  const early = new Set(explorer.map((e) => e.sense.id))
   // Phase unlocking (boss battles) comes later; for now every shipped phase is open.
-  return phases.flatMap((p) => p.senses).filter((s) => !seen.has(`${s.id}#meaning`))
+  const route: NewSense[] = phases
+    .flatMap((p) => p.senses)
+    .filter((s) => isUnseen(s) && !early.has(s.id))
+    .map((sense) => ({ sense, source: 'route' }))
+  return [...explorer, ...route]
+}
+
+/** Content senses plus the learner's own words, by id. */
+export async function senseMap(): Promise<Map<string, Sense>> {
+  const map = new Map(allSenses().map((s) => [s.id, s]))
+  for (const { sense } of await explorerSenses()) map.set(sense.id, sense)
+  return map
 }
 
 async function updateRecovery(reviewsDue: number): Promise<boolean> {
@@ -62,7 +87,7 @@ export async function dayPlan(now: Date): Promise<DayPlan> {
   const recovery = await updateRecovery(reviews.length)
   const today = await db.days.get(localDate(now))
   const newToday = today?.newCards ?? 0
-  const unseen = (await unseenRouteSenses()).length
+  const unseen = (await unseenSenses()).length
   const newRemaining = recovery ? 0 : Math.max(0, Math.min(settings.newPerDay - newToday, unseen))
   // Rough estimate: ~12 s per review, ~30 s per new card.
   const estimatedMinutes = Math.ceil((reviews.length * 12 + newRemaining * 30) / 60)
@@ -75,14 +100,19 @@ export type SessionKind = 'mixed' | 'reviews' | 'new'
 export async function buildQueue(kind: SessionKind, now: Date): Promise<QueueItem[]> {
   const plan = await dayPlan(now)
   const reviews = kind === 'new' ? [] : await dueReviews(now)
-  const newSenses = kind === 'reviews' ? [] : (await unseenRouteSenses()).slice(0, plan.newRemaining)
+  const newSenses = kind === 'reviews' ? [] : (await unseenSenses()).slice(0, plan.newRemaining)
+  const senses = await senseMap()
 
   const reviewItems: QueueItem[] = []
   for (const card of reviews) {
-    const sense = allSenses().find((s) => s.id === card.senseId)
+    const sense = senses.get(card.senseId)
     if (sense) reviewItems.push({ card, sense, isNew: false })
   }
-  const newItems: QueueItem[] = newSenses.map((sense) => ({ card: newStudyCard(sense.id, 'route', now), sense, isNew: true }))
+  const newItems: QueueItem[] = newSenses.map(({ sense, source }) => ({
+    card: newStudyCard(sense.id, source, now),
+    sense,
+    isNew: true,
+  }))
 
   if (kind !== 'mixed') return [...reviewItems, ...newItems]
 

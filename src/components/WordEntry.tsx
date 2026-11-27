@@ -1,8 +1,10 @@
 import { useLiveQuery } from 'dexie-react-hooks'
-import { Link } from 'react-router-dom'
+import { useState } from 'react'
+import { Link, useNavigate } from 'react-router-dom'
 import { getPhaseOfSense, getSensesByLemma } from '../content/index.ts'
 import { db } from '../db/db.ts'
 import { POS_LABEL, wiktionaryUrl, type Dictionary } from '../dictionary/dictionary.ts'
+import { captureWord } from '../explorer/explorer.ts'
 import { lightOf } from '../study/scheduler.ts'
 import LightBadge from './LightBadge.tsx'
 
@@ -23,6 +25,16 @@ export default function WordEntry({ dict, lemma, compact = false, onWord }: Prop
     [lemma],
   )
   const senses = dict.lookup(lemma)
+  const navigate = useNavigate()
+  const [saved, setSaved] = useState(false)
+
+  // In the popup (during a session) the word only goes to the inbox; on the dictionary page the
+  // learner goes straight to choosing the meaning.
+  async function addToJournal() {
+    const id = await captureWord(lemma)
+    if (compact) setSaved(true)
+    else navigate(`/diario/completar/${id}`)
+  }
   const maxPerPos = compact ? 2 : 8
   // Parts of speech in order of their most frequent sense ("up": adverb before verb).
   const posOrder = [...new Set(senses.map((s) => s.pos))]
@@ -81,6 +93,7 @@ export default function WordEntry({ dict, lemma, compact = false, onWord }: Prop
       })}
 
       <p className="dict-links">
+        {saved ? <span className="muted">✓ Guardada na caixa de entrada do Diário</span> : <button className="link" onClick={() => void addToJournal()}>+ Diário de bordo</button>}
         {compact && <Link to={`/dicionario/${encodeURIComponent(lemma)}`}>Abrir no Dicionário</Link>}
         <a href={wiktionaryUrl(lemma)} target="_blank" rel="noreferrer">Wiktionary (online) ↗</a>
       </p>
