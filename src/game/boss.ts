@@ -9,7 +9,9 @@ export const CITY_BOSS_QUESTIONS = 20
 export const BORDER_BOSS_QUESTIONS = 50
 /** Share of right answers needed to win. */
 export const BOSS_PASS_SHARE = 0.8
-/** After a loss, the boss can be faced again after this many hours. */
+/** Tries in a row before the boss asks for a break. */
+export const BOSS_TRIES_IN_A_ROW = 2
+/** After using up the tries in a row, the boss can be faced again after this many hours. */
 export const BOSS_RETRY_HOURS = 24
 
 /** Visual motorhome upgrades, one per border crossed (A1, A2, B1, B2). */
@@ -25,6 +27,8 @@ export interface BossQuestion {
   /** The example sentence with its blank (`____`). */
   sentence: string
   answer: string
+  /** Portuguese translation of the full sentence, shown after answering. */
+  pt?: string
 }
 
 export const isBorder = (city: City, leg: City[]) => leg[leg.length - 1]?.phaseId === city.phaseId
@@ -57,16 +61,20 @@ export function makeBossQuestions(pool: Sense[], count: number, rng: () => numbe
     .slice(0, count)
     .map((sense) => {
       const example = sense.examples[Math.floor(rng() * sense.examples.length)]
-      return { sense, sentence: example.text, answer: example.answer }
+      return { sense, sentence: example.text, answer: example.answer, pt: example.pt }
     })
 }
 
-/** When the boss can be faced again: 24 h after the last loss, or now. Null once it was beaten. */
+/**
+ * When the boss can be faced again. Losses come in rounds of BOSS_TRIES_IN_A_ROW tries: after
+ * the first loss of a round the rematch is right away; after the last one it opens 24 h later.
+ * Null once the boss was beaten.
+ */
 export function nextTryAt(phaseId: string, attempts: BossAttempt[], now: Date): Date | null {
   const mine = attempts.filter((a) => a.phaseId === phaseId)
   if (mine.some((a) => a.passed)) return null
   const last = mine.reduce<BossAttempt | undefined>((latest, a) => (!latest || a.at > latest.at ? a : latest), undefined)
-  if (!last) return now
+  if (!last || mine.length % BOSS_TRIES_IN_A_ROW !== 0) return now
   const retry = new Date(last.at.getTime() + BOSS_RETRY_HOURS * 3600_000)
   return retry > now ? retry : now
 }
