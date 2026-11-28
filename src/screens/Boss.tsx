@@ -40,7 +40,12 @@ export default function Boss() {
   const border = isBorder(city, cities)
   const title = border ? `Chefão da fronteira · ${city.name}` : `Chefão de ${city.name}`
 
-  if (result) return <BossResult cities={cities} cityIndex={cities.indexOf(city)} border={border} answers={answers} passed={result.passed} correct={result.correct} reward={data.reward?.text} />
+  if (result) {
+    const retryAt = nextTryAt(city.phaseId, data.attempts, data.now)
+    const retryNow = !result.passed && retryAt !== null && retryAt <= data.now
+    const tryAgain = () => { setQuestions(null); setAnswers([]); setResult(null) }
+    return <BossResult cities={cities} cityIndex={cities.indexOf(city)} border={border} answers={answers} passed={result.passed} correct={result.correct} reward={data.reward?.text} retryNow={retryNow} onRetry={tryAgain} />
+  }
 
   if (questions) {
     const finish = async (all: Answer[]) => {
@@ -95,7 +100,7 @@ export default function Boss() {
         <ul>
           <li>Sem tradução e sem dica: só a definição em inglês e a frase.</li>
           <li>Acerte {passMark(count)} de {count} (80%) para vencer.</li>
-          <li>Se perder, as palavras que errar voltam para revisão e o chefão espera 24 horas pela revanche.</li>
+          <li>Se perder, as palavras que errar voltam para revisão e você pode tentar de novo na hora. Depois de 2 derrotas seguidas, o chefão espera 24 horas pela revanche.</li>
           {border && <li>Vencendo, o motorhome ganha um upgrade: {MOTORHOME_UPGRADES[0].icon} {MOTORHOME_UPGRADES[0].name}.</li>}
         </ul>
         {data.reward && !data.reward.claimedAt && <p>🎁 Sua recompensa ao vencer: <strong>{data.reward.text}</strong></p>}
@@ -160,7 +165,9 @@ function BossQuestionCard({ title, question, number, total, rightSoFar, dev, onA
               {check === 'typo' && `✔ Quase! Você escreveu "${typed}"`}
               {check === 'wrong' && (typed.trim() ? `✘ Você respondeu "${typed}". A resposta era "${question.answer}"` : `✘ A resposta era "${question.answer}"`)}
             </p>
-            {question.sense.translationPt && <p><Flag country="BR" /> {question.sense.translationPt}</p>}
+            {question.sense.translationPt && <p><Flag country="BR" /> <strong>{question.sense.translationPt}</strong></p>}
+            {question.sense.definitionPt && <p className="translation"><Flag country="BR" /> {question.sense.definitionPt}</p>}
+            {question.pt && <p className="muted">{question.sentence.replace('____', question.answer)} · {question.pt}</p>}
             <button className="primary" onClick={() => onAnswer({ question, typed, check })}>{number === total ? 'Ver resultado' : 'Continuar'}</button>
           </div>
         )}
@@ -169,7 +176,8 @@ function BossQuestionCard({ title, question, number, total, rightSoFar, dev, onA
   )
 }
 
-function BossResult({ cities, cityIndex, border, answers, passed, correct, reward }: {
+function BossResult({ cities, cityIndex, border, answers, passed, correct, reward, retryNow, onRetry }: {
+  retryNow: boolean; onRetry: () => void
   cities: City[]; cityIndex: number; border: boolean; answers: Answer[]; passed: boolean; correct: number; reward?: string
 }) {
   const city = cities[cityIndex]
@@ -194,13 +202,14 @@ function BossResult({ cities, cityIndex, border, answers, passed, correct, rewar
           </>
         ) : (
           <>
-            <p>O chefão espera 24 horas pela revanche. As palavras que escaparam já voltaram para a sua revisão:</p>
+            <p>{retryNow ? 'Você ainda tem mais uma tentativa agora, com perguntas novas.' : 'Foram 2 derrotas seguidas: o chefão espera 24 horas pela revanche.'} As palavras que escaparam já voltaram para a sua revisão:</p>
             <ul className="missed">
               {missed.map((a) => <li key={a.question.sense.id}><strong>{a.question.answer}</strong> <span className="muted">· {a.question.sense.translationPt}</span></li>)}
             </ul>
           </>
         )}
-        <Link className="button primary" to="/mapa">Voltar ao mapa</Link>
+        {retryNow && <button className="button primary" onClick={onRetry}>⚔️ Tentar de novo</button>}
+        <Link className={`button ${retryNow ? '' : 'primary'}`} to="/mapa">Voltar ao mapa</Link>
       </div>
     </section>
   )

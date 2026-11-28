@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom'
 import HowItWorks from '../components/HowItWorks.tsx'
 import TrafficLight from '../components/TrafficLight.tsx'
 import { LEGS } from '../content/legs.ts'
-import { BOSS_PASS_SHARE, BORDER_BOSS_QUESTIONS, BOSS_RETRY_HOURS, CITY_BOSS_QUESTIONS } from '../game/boss.ts'
+import { BOSS_PASS_SHARE, BORDER_BOSS_QUESTIONS, BOSS_RETRY_HOURS, BOSS_TRIES_IN_A_ROW, CITY_BOSS_QUESTIONS } from '../game/boss.ts'
 import { PENALTY, WRONG_ANSWER_CAP } from '../study/scoring.ts'
 import { RECOVERY_OFF, RECOVERY_ON, REVIEWS_PER_NEW } from '../study/session.ts'
 
@@ -60,7 +60,8 @@ export default function Manual() {
             <li>O chefão de uma cidade aparece quando {pass}% das palavras dela estiverem amarelas ou verdes.</li>
             <li>São {CITY_BOSS_QUESTIONS} perguntas escritas, sem tradução e sem dica. Acertando {pass}%, você vence.</li>
             <li>Vencendo: ganha o cartão-postal da cidade, a recompensa pessoal que você definiu (se definiu) e a próxima cidade abre.</li>
-            <li>Perdendo: as palavras que você errou voltam para a revisão e a revanche abre em {BOSS_RETRY_HOURS} horas.</li>
+            <li>Perdendo: as palavras que você errou voltam para a revisão e você pode tentar de novo na hora, com perguntas novas. Depois de {BOSS_TRIES_IN_A_ROW} derrotas seguidas, a revanche abre em {BOSS_RETRY_HOURS} horas.</li>
+            <li>Depois de cada resposta do chefão aparecem a tradução da palavra, da definição e da frase.</li>
             <li>Na última cidade de cada trecho fica o chefão da fronteira, com {BORDER_BOSS_QUESTIONS} perguntas de todo o trecho. Vencendo, o motorhome ganha um upgrade.</li>
           </ul>
         </details>

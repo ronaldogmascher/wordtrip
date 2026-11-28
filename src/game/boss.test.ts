@@ -35,10 +35,13 @@ describe('boss rules', () => {
     expect(new Set(qs.map((q) => q.sense.id)).size).toBe(20)
     for (const q of qs) expect(q.sentence).toContain('____')
   })
-  it('waits 24 h after a loss and closes once beaten', () => {
+  it('allows a second try right away, then waits 24 h, and closes once beaten', () => {
     expect(nextTryAt('en:a1:01', [], now)).toEqual(now)
     const lost = new Date(now.getTime() - 3600_000)
-    expect(nextTryAt('en:a1:01', [attempt('en:a1:01', false, lost)], now)).toEqual(new Date(lost.getTime() + 24 * 3600_000))
+    expect(nextTryAt('en:a1:01', [attempt('en:a1:01', false, lost)], now)).toEqual(now)
+    const twice = [attempt('en:a1:01', false, new Date(lost.getTime() - 600_000)), attempt('en:a1:01', false, lost)]
+    expect(nextTryAt('en:a1:01', twice, now)).toEqual(new Date(lost.getTime() + 24 * 3600_000))
+    expect(nextTryAt('en:a1:01', [...twice, attempt('en:a1:01', false, now)], now)).toEqual(now)
     expect(nextTryAt('en:a1:01', [attempt('en:a1:01', false, new Date('2026-11-20'))], now)).toEqual(now)
     expect(nextTryAt('en:a1:01', [attempt('en:a1:01', true)], now)).toBeNull()
   })
