@@ -142,7 +142,7 @@ export default function Home() {
         <h3>Prática livre</h3>
         <div className="gym-grid">
           <Link className="button" to="/numeros">🔢 Números, horas e cores</Link>
-          <Link className="button" to="/ipa">🗣️ Trilha de IPA</Link>
+          <Link className="button" to="/ipa">🏕️ Trilha de IPA</Link>
           <Link className="button" to="/gramatica">📝 Gramática</Link>
           <Link className="button" to="/oficina">🔧 Oficina</Link>
         </div>

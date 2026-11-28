@@ -359,3 +359,15 @@ html, body { overflow-x: hidden; }
 .leg-title { font-size: 1.05rem; margin: 8px 0 12px; }
 details.leg > summary { cursor: pointer; min-height: 44px; display: flex; align-items: center; }
 details.leg[open] > summary { margin-bottom: 12px; }
+
+/* Trilha de IPA no camping */
+.ipa-stage summary { display: flex; align-items: center; gap: 12px; min-height: 44px; cursor: pointer; }
+.ipa-stage.locked { opacity: 0.75; }
+.ipa-stage-icon { font-size: 1.8rem; }
+.ipa-stage .progress { margin: 8px 0 12px; }
+.ipa-card-symbol { text-align: center; font-size: 4.5rem; margin: 8px 0; }
+.ipa-huge { font-size: 5rem; text-align: center; }
+.ipa-options-symbols { grid-template-columns: repeat(3, 1fr); }
+.ipa-options-symbols .choice { font-size: 2.4rem; padding: 18px 4px; text-align: center; }
+.ipa-options-pair { grid-template-columns: 1fr 1fr; }
+.ipa-options-pair .choice { display: flex; flex-direction: column; align-items: center; gap: 4px; font-size: 1.4rem; padding: 16px 4px; }

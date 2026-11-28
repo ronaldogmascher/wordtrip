@@ -87,6 +87,12 @@ export default function Manual() {
           <p>A Autoescola fica sempre aberta para reciclagem, junto com a <strong>prática livre</strong>: números, horas e cores, a trilha de pronúncia (IPA), tempos verbais e regrinhas de gramática, e a Oficina, que reforça as palavras que você mais erra com âncoras, ditado e frases suas. Nada disso mexe nas revisões.</p>
         </details>
         <details>
+          <summary>🏕️ Trilha de IPA no camping</summary>
+          <p>Na prática livre da Autoescola, a <strong>Trilha de IPA</strong> ensina os 39 sons do inglês, com o símbolo do IPA bem grande, a comparação com o português e dicas de pronúncia. Os sons ficam em 5 etapas pelo camping: 🎣 Pescaria (os 5 sons que mais confundem brasileiros: /ə/, /ɪ/, /iː/, /æ/ e /θ/), 🧗 Escalada (as outras vogais), 🌲 Trilha na mata (os ditongos), 🛶 Canoagem (as consoantes traiçoeiras) e 🔥 Fogueira (as consoantes que restam).</p>
+          <p>Em <strong>Treinar</strong>, cada som vira um card com repetição espaçada, separado das palavras da viagem. São três tipos de pergunta: ouvir uma palavra e escolher o som, ver o símbolo e escolher a palavra, e o par mínimo (ouvir e dizer se foi "ship" ou "sheep"). Os sons novos vêm da etapa em que você está.</p>
+          <p>Quando 80% dos sons de uma etapa estiverem em 🟡 Aprendendo ou 🟢 Aprendido, aparece o <strong>chefão</strong> da etapa. Acertando 80% das perguntas, a próxima etapa abre. Depois das 5 etapas vem o chefão final, o <strong>Guarda-florestal</strong>, com 20 perguntas de todos os sons; vencendo, você ganha o selo 👂 Ouvido afiado. Os chefões não mexem nas revisões e podem ser repetidos quando quiser. Os símbolos seguem o sotaque escolhido nos Ajustes.</p>
+        </details>
+        <details>
           <summary>🌱 Seu nível e o modo iniciante</summary>
           <ul>
             <li><strong>Do zero ou pré-iniciante:</strong> começa na Autoescola; o mapa abre com a CNH.</li>

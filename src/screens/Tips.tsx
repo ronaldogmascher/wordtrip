@@ -25,6 +25,11 @@ const TIPS = [
     text: 'Leia as palavras e frases em voz alta e imite o ritmo e a entonação do áudio. Isso fixa melhor, treina a fala e acostuma os músculos do rosto a sons que não existem no português. A voz é de computador, mas ajuda bastante.',
   },
   {
+    icon: '👂',
+    title: 'Aprenda a ouvir os sons do inglês',
+    text: 'O inglês tem sons que não existem no português, e quem não os ouve também não consegue falá-los. Faça a Trilha de IPA no camping, na Autoescola: são poucos minutos por dia, e depois disso você vai entender o IPA de cada card (as letras entre barras, como /ʃɪp/) e perceber a diferença entre "ship" e "sheep".',
+  },
+  {
     icon: '🤝',
     title: 'Seja honesto na nota',
     text: 'Se não entendeu a palavra, não dê nota alta. A nota não é uma prova: ela serve para o app decidir quando mostrar a palavra de novo. Use o botão Traduzir quantas vezes precisar, sem culpa. Quando menos esperar, seu vocabulário terá crescido muito.',
