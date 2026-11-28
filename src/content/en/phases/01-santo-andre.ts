@@ -1,7 +1,7 @@
 import type { Phase } from '../../types.ts'
 import { sense } from '../../helpers.ts'
 
-// Phase 1 — Santo André (departure and tutorial).
+// Phase 1 — the traveler's home city (departure and tutorial). The file keeps its original name.
 // The 50 most useful everyday senses to start from zero.
 // Definitions, sentences and translations are original content written for WordTrip.
 
@@ -12,7 +12,7 @@ export const phase01: Phase = {
   city: 'Santo André',
   region: 'São Paulo, Brasil',
   arrival:
-    'O motorhome está abastecido e a estrada espera. Antes de partir de Santo André, aprenda as palavras que vão te acompanhar na viagem inteira.',
+    'O motorhome está abastecido e a estrada espera. Antes de partir, aprenda as palavras que vão te acompanhar na viagem inteira.',
   senses: [
     sense('be', 'verb', 'biː', 'biː', {
       definition: 'to have a particular quality, job or position',

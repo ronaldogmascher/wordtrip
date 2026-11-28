@@ -2,7 +2,7 @@ import { useLiveQuery } from 'dexie-react-hooks'
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import Postcard from '../components/Postcard.tsx'
-import { cities, phases } from '../content/index.ts'
+import { phases } from '../content/index.ts'
 import { db, type BossAttempt, type Reward } from '../db/db.ts'
 import { nextTryAt, upgradesEarned } from '../game/boss.ts'
 import { cityPreview } from '../game/preview.ts'
@@ -10,29 +10,31 @@ import { BOSS_READY_SHARE, routeProgress, type CityProgress } from '../game/prog
 import { LIGHTS } from '../study/lights.ts'
 import { timeUntil } from '../study/when.ts'
 import { characterIcon, petIcon } from '../game/traveler.ts'
+import { routeCities } from '../game/route.ts'
 import { useDevMode } from '../dev.ts'
 
-// The journey map: a trail (not geographic) from Santo André to the border in Foz do Iguaçu.
+// The journey map: a trail (not geographic) from the traveler's home city to the border in Foz do Iguaçu.
 // Finished cities show a flag, the current one pulses with the motorhome, the next ones wait.
 
 export default function JourneyMap() {
   const data = useLiveQuery(async () => {
     const [cards, bosses, profile, rewards] = await Promise.all([db.cards.toArray(), db.bossAttempts.toArray(), db.profile.get('me'), db.rewards.toArray()])
-    return { progress: routeProgress(cities, phases, cards, bosses), bosses, profile, rewards, now: new Date() }
+    const route = routeCities(profile?.homeCity)
+    return { route, progress: routeProgress(route, phases, cards, bosses), bosses, profile, rewards, now: new Date() }
   })
 
   if (!data) return <section className="screen"><p className="muted">Carregando…</p></section>
-  const { progress, bosses, profile, rewards, now } = data
+  const { route, progress, bosses, profile, rewards, now } = data
   const beatenAt = new Map(bosses.filter((b) => b.passed).map((b) => [b.phaseId, b.at]))
-  const postcards = cities.filter((c) => beatenAt.has(c.phaseId))
-  const upgrades = upgradesEarned([cities], bosses)
+  const postcards = route.filter((c) => beatenAt.has(c.phaseId))
+  const upgrades = upgradesEarned([route], bosses)
   const claimed = rewards.filter((r) => r.claimedAt)
 
   return (
     <section className="screen">
       <p className="eyebrow">Trecho 1 · A1 · Brasil</p>
       <h1>🗺️ Mapa da jornada</h1>
-      <p className="muted">De Santo André até a fronteira em Foz do Iguaçu. Quando {Math.round(BOSS_READY_SHARE * 100)}% das palavras de uma cidade estiverem amarelas ou verdes, o chefão da cidade aparece. Vencendo, a próxima cidade abre.</p>
+      <p className="muted">De {route[0].name === 'Sua cidade' ? 'sua cidade' : route[0].name} até a fronteira em Foz do Iguaçu. Quando {Math.round(BOSS_READY_SHARE * 100)}% das palavras de uma cidade estiverem amarelas ou verdes, o chefão da cidade aparece. Vencendo, a próxima cidade abre.</p>
       <ol className="trail">
         {progress.map((p) => (
           <CityStop key={p.city.phaseId} p={p} bosses={bosses} now={now} reward={rewards.find((r) => r.phaseId === p.city.phaseId)}
@@ -64,7 +66,7 @@ export default function JourneyMap() {
           <h2>🏆 Mural de conquistas</h2>
           <ul className="achievements">
             {claimed.map((r) => (
-              <li key={r.phaseId}>🎁 <strong>{r.text}</strong> <span className="muted">· {cities.find((c) => c.phaseId === r.phaseId)?.name} · {r.claimedAt?.toLocaleDateString('pt-BR')}</span></li>
+              <li key={r.phaseId}>🎁 <strong>{r.text}</strong> <span className="muted">· {route.find((c) => c.phaseId === r.phaseId)?.name} · {r.claimedAt?.toLocaleDateString('pt-BR')}</span></li>
             ))}
           </ul>
         </div>
@@ -85,7 +87,7 @@ function CityStop({ p, bosses, now, reward, traveler, motorhome }: { p: CityProg
     <li className={`trail-stop ${status}`}>
       <span className="trail-icon" aria-hidden="true">{status === 'done' ? '🏁' : status === 'ahead' ? '🔒' : city.icon}</span>
       <div className="trail-body">
-        <strong>{city.number}. {city.name}</strong> <span className="muted">· {city.region}</span>
+        <strong>{city.number}. {city.name}</strong>{city.region && <span className="muted"> · {city.region}</span>}
         <p className="muted">{city.landmark}</p>
         {preview && (
           <p className="preview">

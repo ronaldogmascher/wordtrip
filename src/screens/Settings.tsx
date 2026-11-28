@@ -105,8 +105,11 @@ export default function Settings() {
 
       <div className="card">
         <h2>📘 Ajuda</h2>
-        <p className="muted">Como funcionam a nota de cada card, os chefões, os km e o resto do app.</p>
-        <Link className="button" to="/manual">Abrir o manual</Link>
+        <p className="muted">Como funcionam a nota de cada card, os chefões, os km e o resto do app, e dicas para estudar melhor.</p>
+        <div className="row">
+          <Link className="button" to="/manual">📘 Manual</Link>
+          <Link className="button" to="/dicas">🧭 Como estudar melhor</Link>
+        </div>
       </div>
 
       <InsuranceCard />
@@ -130,6 +133,10 @@ function TravelerCard() {
       <label className="field">
         Seu nome
         <input value={profile.name} onChange={(e) => update({ name: e.target.value })} />
+      </label>
+      <label className="field">
+        Cidade de partida
+        <input value={profile.homeCity ?? ''} onChange={(e) => update({ homeCity: e.target.value })} placeholder="Sua cidade" />
       </label>
       <label className="field">
         Nome do motorhome

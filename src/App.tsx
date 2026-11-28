@@ -5,6 +5,7 @@ import ScrollToTop from './components/ScrollToTop.tsx'
 import Boss from './screens/Boss.tsx'
 import JourneyMap from './screens/Map.tsx'
 import Manual from './screens/Manual.tsx'
+import Tips from './screens/Tips.tsx'
 import Onboarding from './screens/Onboarding.tsx'
 import Dictionary from './screens/Dictionary.tsx'
 import DetourNew from './screens/DetourNew.tsx'
@@ -63,6 +64,7 @@ export default function App() {
           <Route path="/oficina" element={<Workshop />} />
           <Route path="/ajustes" element={<Settings />} />
           <Route path="/manual" element={<Manual />} />
+          <Route path="/dicas" element={<Tips />} />
         </Routes>
       </main>
       <nav className="tabbar" aria-label="Navegação principal">

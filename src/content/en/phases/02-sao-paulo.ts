@@ -14,8 +14,8 @@ export const phase02: Phase = {
     'Primeira parada: a Avenida Paulista, no meio do trânsito, dos museus e de gente do mundo inteiro. Aqui o vocabulário do dia a dia ganha velocidade.',
   senses: [
     sense('need', 'verb', 'niːd', 'niːd', {
-      definition: 'to have to have something because it is necessary',
-      definitionPt: 'precisar ter algo porque é necessário',
+      definition: 'to want or require something because you cannot do without it',
+      definitionPt: 'querer ou exigir algo porque você não consegue ficar sem ele',
       translationPt: 'precisar',
       examples: [{ tense: 'present simple', text: 'I ____ a new pair of shoes for the trip.', answer: 'need', pt: 'Eu preciso de um par de sapatos novo para a viagem.' }],
       synonyms: ['require'],
