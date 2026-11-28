@@ -1,5 +1,6 @@
 import { useLiveQuery } from 'dexie-react-hooks'
 import { Link } from 'react-router-dom'
+import Info, { InfoIcon } from '../components/Info.tsx'
 import TrafficLight from '../components/TrafficLight.tsx'
 import { cities, phases } from '../content/index.ts'
 import { db } from '../db/db.ts'
@@ -45,15 +46,21 @@ export default function Home() {
         </p>
         {trip && (
           <div className="trip-stats">
-            <span title="Quilômetros rodados: cada resposta faz o motorhome andar">🛣️ {trip.km} km</span>
-            <span title="Combustível: cada km vira 1 ⛽">⛽ {trip.fuel}</span>
-            <span title="Nível do viajante, pelos km rodados">⭐ Nível {trip.level}</span>
+            <Info label={<>🛣️ {trip.km} km</>}>
+              <strong>Quilômetros rodados.</strong> Cada card respondido faz o motorhome andar: quanto melhor a resposta, mais km. Os km nunca diminuem e definem o seu nível.
+            </Info>
+            <Info label={<>⛽ {trip.fuel}</>}>
+              <strong>Combustível.</strong> Cada km rodado vira 1 ⛽. Em breve dá para gastar em passeios bônus, personalizar o motorhome e proteger a sequência de dias. Dicas e tradução nunca custam combustível.
+            </Info>
+            <Info label={<>⭐ Nível {trip.level}</>}>
+              <strong>Nível do viajante.</strong> Sobe com os km rodados: o nível 2 pede 100 km, o 3 mais 200, o 4 mais 300, e assim por diante.
+            </Info>
           </div>
         )}
       </header>
 
       <div className="card">
-        <h2>Plano de hoje</h2>
+        <h2>Plano de hoje <InfoIcon>As <strong>revisões</strong> são palavras que já viu e que o app calculou que está na hora de relembrar, antes de esquecer. As <strong>novas</strong> são as próximas palavras da cidade atual, até o limite diário dos Ajustes. A "Sessão do dia" mistura as duas: uma nova a cada quatro revisões.</InfoIcon></h2>
         {plan ? (
           <>
             <p>
@@ -96,7 +103,7 @@ export default function Home() {
       {workshop && <WorkshopInvite reason={workshop} />}
 
       <div className="card">
-        <h2>🏋️ Academia</h2>
+        <h2>🏋️ Academia <InfoIcon>Treinos livres que não mexem no calendário de revisões: números e horas, pronúncia (IPA), tempos verbais e regrinhas, e a Oficina, que reforça as palavras que você mais erra.</InfoIcon></h2>
         <p className="muted">Uma parada fora da rota para malhar os músculos do vocabulário. Sem limite diário: treine o que quiser, quando quiser.</p>
         <div className="gym-grid">
           <Link className="button" to="/numeros">🔢 Números e horas</Link>
@@ -109,6 +116,7 @@ export default function Home() {
       <div className="card">
         <h2>Como ler o semáforo</h2>
         <TrafficLight />
+        <p><Link to="/manual">📘 Como funciona o WordTrip</Link></p>
       </div>
     </section>
   )

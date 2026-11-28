@@ -5,6 +5,7 @@ import Postcard from '../components/Postcard.tsx'
 import { cities, phases } from '../content/index.ts'
 import { db, type BossAttempt, type Reward } from '../db/db.ts'
 import { nextTryAt, upgradesEarned } from '../game/boss.ts'
+import { cityPreview } from '../game/preview.ts'
 import { BOSS_READY_SHARE, routeProgress, type CityProgress } from '../game/progress.ts'
 import { LIGHTS } from '../study/lights.ts'
 import { timeUntil } from '../study/when.ts'
@@ -75,13 +76,21 @@ function CityStop({ p, bosses, now, reward, traveler, motorhome }: { p: CityProg
   const { city, status } = p
   const pct = Math.round(p.share * 100)
   const tryAt = status === 'current' ? nextTryAt(city.phaseId, bosses, now) : null
-  const arrival = phases.find((ph) => ph.id === city.phaseId)?.arrival
+  const phase = phases.find((ph) => ph.id === city.phaseId)
+  const arrival = phase?.arrival
+  const preview = phase && cityPreview(phase)
   return (
     <li className={`trail-stop ${status}`}>
       <span className="trail-icon" aria-hidden="true">{status === 'done' ? '🏁' : status === 'ahead' ? '🔒' : city.icon}</span>
       <div className="trail-body">
         <strong>{city.number}. {city.name}</strong> <span className="muted">· {city.region}</span>
         <p className="muted">{city.landmark}</p>
+        {preview && (
+          <p className="preview">
+            📚 {status === 'done' ? 'Você aprendeu' : 'Você vai aprender'}: <em>{preview.topics.join(', ')}</em>
+            <span className="muted"> · {preview.sample.join(', ')}…</span>
+          </p>
+        )}
         {status === 'current' && (
           <>
             <p className="trail-here">🚐 {motorhome ?? 'Seu motorhome'} está aqui {traveler}</p>

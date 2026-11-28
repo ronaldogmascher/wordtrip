@@ -1,0 +1,68 @@
+import { Link } from 'react-router-dom'
+import HowItWorks from '../components/HowItWorks.tsx'
+import TrafficLight from '../components/TrafficLight.tsx'
+import { BOSS_PASS_SHARE, BORDER_BOSS_QUESTIONS, BOSS_RETRY_HOURS, CITY_BOSS_QUESTIONS } from '../game/boss.ts'
+import { PENALTY, WRONG_ANSWER_CAP } from '../study/scoring.ts'
+import { RECOVERY_OFF, RECOVERY_ON, REVIEWS_PER_NEW } from '../study/session.ts'
+
+// A short instruction manual: how the app works, one topic per section.
+
+export default function Manual() {
+  const pass = Math.round(BOSS_PASS_SHARE * 100)
+  return (
+    <section className="screen">
+      <h1>📘 Como funciona o WordTrip</h1>
+      <div className="card">
+        <h2>Em resumo</h2>
+        <HowItWorks />
+      </div>
+
+      <div className="card manual">
+        <details>
+          <summary>🚦 O semáforo</summary>
+          <TrafficLight />
+        </details>
+        <details>
+          <summary>📅 A sessão do dia</summary>
+          <p>Todo dia o app separa as <strong>revisões</strong> (palavras que estão na hora de relembrar) e as <strong>novas</strong> (as próximas palavras da cidade atual, até o limite diário dos Ajustes). A "Sessão do dia" mistura as duas: uma nova a cada {REVIEWS_PER_NEW} revisões. Também dá para fazer "Só revisão" ou "Só novas".</p>
+          <p>Se acumularem mais de {RECOVERY_ON} revisões atrasadas, entra o <strong>modo recuperação</strong>: as novas pausam até ficarem menos de {RECOVERY_OFF}, para você não se afogar.</p>
+        </details>
+        <details>
+          <summary>🔢 A nota de cada card</summary>
+          <p>Traduzir e pedir dica fazem parte do aprendizado: use sempre que precisar. A nota só serve para o app decidir quando mostrar cada palavra de novo.</p>
+          <ul>
+            <li>Você dá uma nota de 0 a 10 para o quão fácil foi (0 = não lembrei, 10 = muito fácil).</li>
+            <li>O app ajusta essa nota pelo que aconteceu no card: erro pequeno de ortografia −{PENALTY.typo}, tradução −{PENALTY.translation}, dica −{PENALTY.hint}.</li>
+            <li>Se a resposta estiver errada, a nota final fica em no máximo {WRONG_ANSWER_CAP}.</li>
+            <li>A nota final cai numa faixa: 0–3 Errei, 4–6 Difícil, 7–8 Bom, 9–10 Fácil. Quanto melhor a faixa, mais tempo até a próxima revisão (algoritmo FSRS).</li>
+            <li>Depois de 2 acertos seguidos com nota 7 ou mais, a palavra passa da múltipla escolha para a escrita. Se errar a escrita 2 vezes seguidas, ela volta para a múltipla escolha.</li>
+            <li>"Já sei": se você digitar a palavra certa sem tradução e sem dica, ela pula direto para uma revisão bem mais distante.</li>
+          </ul>
+        </details>
+        <details>
+          <summary>⚔️ Chefões e cidades</summary>
+          <ul>
+            <li>O chefão de uma cidade aparece quando {pass}% das palavras dela estiverem amarelas ou verdes.</li>
+            <li>São {CITY_BOSS_QUESTIONS} perguntas escritas, sem tradução e sem dica. Acertando {pass}%, você vence.</li>
+            <li>Vencendo: ganha o cartão-postal da cidade, a recompensa pessoal que você definiu (se definiu) e a próxima cidade abre.</li>
+            <li>Perdendo: as palavras que você errou voltam para a revisão e a revanche abre em {BOSS_RETRY_HOURS} horas.</li>
+            <li>Na última cidade de cada trecho fica o chefão da fronteira, com {BORDER_BOSS_QUESTIONS} perguntas de todo o trecho. Vencendo, o motorhome ganha um upgrade.</li>
+          </ul>
+        </details>
+        <details>
+          <summary>🛣️ Km, combustível e nível</summary>
+          <p>Cada card respondido faz o motorhome rodar: quanto melhor a nota, mais km. Os km nunca diminuem. Cada km vira 1 ⛽ de combustível, que em breve servirá para passeios bônus, personalizar o motorhome e proteger a sequência. O nível do viajante sobe com os km (100 km para o nível 2, mais 200 para o 3, e assim por diante).</p>
+        </details>
+        <details>
+          <summary>📓 Diário de bordo</summary>
+          <p>Achou uma palavra em inglês por aí? Anote no Diário. Se ela já existe na rota, é estudada antes ("encontrada na estrada"). Se não existe, você cria o card. Também dá para importar um texto (um "Desvio") e estudar as palavras dele.</p>
+        </details>
+        <details>
+          <summary>🏋️ Academia</summary>
+          <p>Treinos livres, sem limite diário e sem mexer nas revisões: números e horas, a trilha de pronúncia (IPA), tempos verbais e regrinhas de gramática, e a Oficina, que reforça as palavras que você mais erra com âncoras, ditado e frases suas.</p>
+        </details>
+      </div>
+      <Link className="button" to="/">Voltar ao início</Link>
+    </section>
+  )
+}

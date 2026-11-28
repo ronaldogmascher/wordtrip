@@ -3,6 +3,7 @@ import { NavLink, Route, Routes } from 'react-router-dom'
 import { db } from './db/db.ts'
 import Boss from './screens/Boss.tsx'
 import JourneyMap from './screens/Map.tsx'
+import Manual from './screens/Manual.tsx'
 import Onboarding from './screens/Onboarding.tsx'
 import Dictionary from './screens/Dictionary.tsx'
 import DetourNew from './screens/DetourNew.tsx'
@@ -59,6 +60,7 @@ export default function App() {
           <Route path="/gramatica" element={<Grammar />} />
           <Route path="/oficina" element={<Workshop />} />
           <Route path="/ajustes" element={<Settings />} />
+          <Route path="/manual" element={<Manual />} />
         </Routes>
       </main>
       <nav className="tabbar" aria-label="Navegação principal">

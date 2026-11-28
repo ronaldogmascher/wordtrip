@@ -266,7 +266,7 @@ html, body { overflow-x: hidden; }
 @keyframes pulse { 0%, 100% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--primary) 50%, transparent); } 50% { box-shadow: 0 0 0 8px transparent; } }
 @media (prefers-reduced-motion: reduce) { .trail-stop.current .trail-icon { animation: none; } }
 .trip-stats { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
-.trip-stats span { background: var(--surface); border: 1px solid var(--border); border-radius: 999px; padding: 4px 10px; font-weight: 600; font-size: 0.9rem; }
+.trip-stats > span:not(.info) { background: var(--surface); border: 1px solid var(--border); border-radius: 999px; padding: 4px 10px; font-weight: 600; font-size: 0.9rem; }
 .trail-counts .state-discovering { color: var(--red); }
 .trail-counts .state-learning { color: var(--yellow); }
 .trail-counts .state-learned { color: var(--green); }
@@ -285,3 +285,32 @@ html, body { overflow-x: hidden; }
 .postcard p { margin: 0; }
 .postcard-icon { font-size: 2rem; }
 .achievements, .missed { padding-left: 20px; }
+
+/* Explanations on tap (Info component) */
+.info { position: relative; display: inline-block; }
+.info-trigger { font: inherit; color: inherit; background: none; border: 0; padding: 0; cursor: help; }
+.trip-stats .info-trigger { background: var(--surface); border: 1px solid var(--border); border-radius: 999px; padding: 4px 10px; font-weight: 600; font-size: 0.9rem; }
+.info-icon .info-trigger { color: var(--primary); font-weight: 700; padding: 0 4px; font-size: 0.95em; }
+.info-bubble {
+  position: absolute; z-index: 20; top: calc(100% + 6px); left: 0; width: max-content; max-width: min(280px, calc(100vw - 48px));
+  background: var(--text); color: var(--bg); border-radius: 10px; padding: 8px 10px; font-size: 0.88rem; font-weight: 400;
+  line-height: 1.35; text-transform: none; letter-spacing: normal; box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+}
+.trip-stats { position: relative; }
+.trip-stats .info { position: static; }
+.trip-stats .info-bubble { left: 0; right: 0; width: auto; max-width: none; }
+@media (hover: hover) { .info:hover .info-bubble { display: block; } }
+.preview { font-size: 0.9rem; margin: 4px 0 0; }
+.preview em { font-style: normal; font-weight: 600; }
+.danger { border-color: var(--red); }
+.button.danger, button.danger { background: var(--red); color: #fff; border-color: var(--red); }
+.manual details { border-top: 1px solid var(--border); padding: 10px 0; }
+.manual details:first-of-type { border-top: 0; }
+.manual summary { font-weight: 600; cursor: pointer; }
+.intro-list { padding-left: 0; list-style: none; display: flex; flex-direction: column; gap: 10px; }
+.intro-list li { display: flex; gap: 10px; align-items: flex-start; }
+.intro-list li > span:first-child { font-size: 1.4rem; line-height: 1.2; }
+/* A ⓘ in a card title opens its bubble across the card, so it never leaves the screen. */
+.card:has(.info-icon) { position: relative; }
+.info-icon { position: static; }
+.info-icon .info-bubble { top: 52px; left: 12px; right: 12px; width: auto; max-width: none; }

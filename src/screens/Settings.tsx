@@ -1,8 +1,8 @@
 import { useLiveQuery } from 'dexie-react-hooks'
 import { useState } from 'react'
+import { Link } from 'react-router-dom'
 import { db, getSettings, type Profile, type Settings as AppSettings } from '../db/db.ts'
 import { CHARACTERS, PETS } from '../game/traveler.ts'
-import { PENALTY, WRONG_ANSWER_CAP } from '../study/scoring.ts'
 import { getTheme, setTheme, type ThemeChoice } from '../theme.ts'
 
 const MIN_NEW_PER_DAY = 5
@@ -102,19 +102,12 @@ export default function Settings() {
       )}
 
       <div className="card">
-        <details className="readme">
-          <summary>Leia-me: como funciona a nota de cada card</summary>
-          <p>Traduzir e pedir dica fazem parte do aprendizado: use sempre que precisar. A nota só serve para o app decidir quando mostrar cada palavra de novo.</p>
-          <ul>
-            <li>Você dá uma nota de 0 a 10 para o quão fácil foi (0 = não lembrei, 10 = muito fácil).</li>
-            <li>O app ajusta essa nota pelo que aconteceu no card: erro pequeno de ortografia −{PENALTY.typo}, tradução −{PENALTY.translation}, dica −{PENALTY.hint}.</li>
-            <li>Se a resposta estiver errada, a nota final fica em no máximo {WRONG_ANSWER_CAP}.</li>
-            <li>A nota final cai numa faixa: 0–3 Errei, 4–6 Difícil, 7–8 Bom, 9–10 Fácil. Quanto melhor a faixa, mais tempo até a próxima revisão (algoritmo FSRS).</li>
-            <li>Depois de 2 acertos seguidos com nota 7 ou mais, a palavra passa da múltipla escolha para a escrita. Se errar a escrita 2 vezes seguidas, ela volta para a múltipla escolha.</li>
-            <li>"Já sei": se você digitar a palavra certa sem tradução e sem dica, ela pula direto para uma revisão bem mais distante.</li>
-          </ul>
-        </details>
+        <h2>📘 Ajuda</h2>
+        <p className="muted">Como funcionam a nota de cada card, os chefões, os km e o resto do app.</p>
+        <Link className="button" to="/manual">Abrir o manual</Link>
       </div>
+
+      <ResetCard />
     </section>
   )
 }
@@ -153,6 +146,38 @@ function TravelerCard() {
           Nome do pet
           <input value={profile.petName ?? ''} onChange={(e) => update({ petName: e.target.value })} />
         </label>
+      )}
+    </div>
+  )
+}
+
+/** Erases everything on this device and starts the trip again from the first-launch setup. */
+function ResetCard() {
+  const [confirming, setConfirming] = useState(false)
+  const [typed, setTyped] = useState('')
+  const reset = async () => {
+    await db.transaction('rw', db.tables, async () => {
+      await Promise.all(db.tables.map((t) => t.clear()))
+    })
+    window.location.hash = '#/'
+  }
+  return (
+    <div className="card danger">
+      <h2>🧨 Zerar tudo</h2>
+      <p className="muted">Apaga o perfil, todas as palavras estudadas, o histórico, o Diário, os chefões e as recompensas deste aparelho, e a viagem recomeça do zero. O dicionário baixado continua.</p>
+      {!confirming ? (
+        <button className="button" onClick={() => setConfirming(true)}>Zerar e começar de novo</button>
+      ) : (
+        <form className="typing" onSubmit={(e) => { e.preventDefault(); if (typed.trim().toUpperCase() === 'ZERAR') void reset() }}>
+          <label className="field">
+            Não dá para desfazer. Para confirmar, digite ZERAR:
+            <input value={typed} onChange={(e) => setTyped(e.target.value)} autoCapitalize="characters" aria-label="Digite ZERAR para confirmar" />
+          </label>
+          <div className="row">
+            <button type="button" className="button" onClick={() => { setConfirming(false); setTyped('') }}>Cancelar</button>
+            <button type="submit" className="button danger" disabled={typed.trim().toUpperCase() !== 'ZERAR'}>Apagar tudo</button>
+          </div>
+        </form>
       )}
     </div>
   )

@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { db, getSettings, type CharacterChoice, type PetChoice, type Profile } from '../db/db.ts'
+import HowItWorks from '../components/HowItWorks.tsx'
 import { CHARACTERS, PETS } from '../game/traveler.ts'
 
 // First launch: who is traveling. Everything can be changed later in Ajustes.
@@ -31,15 +32,23 @@ export default function Onboarding() {
       {step === 0 && (
         <div className="card">
           <h1>Bem-vindo a bordo! 🚐</h1>
-          <p>Você vai dirigir um motorhome de <strong>Santo André</strong> até <strong>Nova York</strong>. Cada cidade é uma fase com 50 palavras, e cada palavra que você aprende faz o motorhome rodar mais alguns quilômetros.</p>
+          <p>O WordTrip ensina vocabulário de inglês com cards e uma viagem de motorhome. Funciona assim:</p>
+          <HowItWorks />
+          <p className="muted">Dá para rever tudo isso depois em Ajustes → Abrir o manual.</p>
+          <button className="button primary" onClick={() => setStep(1)}>Vamos lá!</button>
+        </div>
+      )}
+      {step === 1 && (
+        <div className="card">
+          <h2>Quem é você?</h2>
           <label className="field">
             Como você se chama?
             <input autoFocus value={name} onChange={(e) => setName(e.target.value)} placeholder="Seu nome" />
           </label>
-          <button className="button primary" disabled={!name.trim()} onClick={() => setStep(1)}>Continuar</button>
+          <button className="button primary" disabled={!name.trim()} onClick={() => setStep(2)}>Continuar</button>
         </div>
       )}
-      {step === 1 && (
+      {step === 2 && (
         <div className="card">
           <h2>Quem vai dirigir?</h2>
           <div className="choice-grid">
@@ -64,12 +73,12 @@ export default function Onboarding() {
             </label>
           )}
           <div className="row">
-            <button className="button" onClick={() => setStep(0)}>Voltar</button>
-            <button className="button primary" onClick={() => setStep(2)}>Continuar</button>
+            <button className="button" onClick={() => setStep(1)}>Voltar</button>
+            <button className="button primary" onClick={() => setStep(3)}>Continuar</button>
           </div>
         </div>
       )}
-      {step === 2 && (
+      {step === 3 && (
         <div className="card">
           <h2>Dê um nome ao seu motorhome</h2>
           <p className="muted">Ele é a sua casa na estrada e aparece no mapa.</p>
@@ -81,7 +90,7 @@ export default function Onboarding() {
           <input type="range" min={5} max={50} step={5} value={newPerDay} onChange={(e) => setNewPerDay(Number(e.target.value))} className="slider" aria-label="Palavras novas por dia" />
           <p className="muted"><strong>{newPerDay}</strong> por dia. O padrão é 15; dá para mudar depois nos Ajustes.</p>
           <div className="row">
-            <button className="button" onClick={() => setStep(1)}>Voltar</button>
+            <button className="button" onClick={() => setStep(2)}>Voltar</button>
             <button className="button primary" onClick={() => void finish()}>Pegar a estrada! 🚐</button>
           </div>
         </div>
