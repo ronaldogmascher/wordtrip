@@ -99,7 +99,10 @@ export async function dayPlan(now: Date): Promise<DayPlan> {
   return { reviewsDue: reviews.length, newToday, newRemaining, recovery, estimatedMinutes }
 }
 
-export type SessionKind = 'mixed' | 'reviews' | 'new' | 'detour'
+export type SessionKind = 'mixed' | 'reviews' | 'new' | 'detour' | 'city'
+
+/** Developer mode: how many new words a "study this city" session brings. */
+export const CITY_TEST_SESSION = 10
 
 /** A detour's session: its due reviews, then up to DETOUR_NEW_PER_SESSION new words. */
 async function buildDetourQueue(detourId: number, now: Date): Promise<QueueItem[]> {
@@ -118,9 +121,21 @@ async function buildDetourQueue(detourId: number, now: Date): Promise<QueueItem[
   return [...reviews, ...fresh]
 }
 
+/** Developer mode: the next new words of one city, locked or not, outside the daily limit. */
+async function buildCityQueue(phaseId: string | undefined, now: Date): Promise<QueueItem[]> {
+  const phase = phases.find((p) => p.id === phaseId)
+  if (!phase) return []
+  const seen = new Set(await db.cards.toCollection().primaryKeys())
+  return phase.senses
+    .filter((s) => !seen.has(`${s.id}#meaning`))
+    .slice(0, CITY_TEST_SESSION)
+    .map((sense) => ({ card: newStudyCard(sense.id, 'route', now), sense, isNew: true }))
+}
+
 /** Builds the queue for a session. Cards for new senses are created only when answered. */
-export async function buildQueue(kind: SessionKind, now: Date, detourId?: number): Promise<QueueItem[]> {
+export async function buildQueue(kind: SessionKind, now: Date, detourId?: number, phaseId?: string): Promise<QueueItem[]> {
   if (kind === 'detour') return detourId === undefined ? [] : buildDetourQueue(detourId, now)
+  if (kind === 'city') return buildCityQueue(phaseId, now)
   const plan = await dayPlan(now)
   const reviews = kind === 'new' ? [] : await dueReviews(now)
   const newSenses = kind === 'reviews' ? [] : (await unseenSenses()).slice(0, plan.newRemaining)

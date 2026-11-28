@@ -10,6 +10,7 @@ import { BOSS_READY_SHARE, routeProgress, type CityProgress } from '../game/prog
 import { LIGHTS } from '../study/lights.ts'
 import { timeUntil } from '../study/when.ts'
 import { characterIcon, petIcon } from '../game/traveler.ts'
+import { useDevMode } from '../dev.ts'
 
 // The journey map: a trail (not geographic) from Santo André to the border in Foz do Iguaçu.
 // Finished cities show a flag, the current one pulses with the motorhome, the next ones wait.
@@ -79,6 +80,7 @@ function CityStop({ p, bosses, now, reward, traveler, motorhome }: { p: CityProg
   const phase = phases.find((ph) => ph.id === city.phaseId)
   const arrival = phase?.arrival
   const preview = phase && cityPreview(phase)
+  const dev = useDevMode()
   return (
     <li className={`trail-stop ${status}`}>
       <span className="trail-icon" aria-hidden="true">{status === 'done' ? '🏁' : status === 'ahead' ? '🔒' : city.icon}</span>
@@ -118,6 +120,12 @@ function CityStop({ p, bosses, now, reward, traveler, motorhome }: { p: CityProg
             : <Link className="button primary trail-boss-button" to={`/chefao/${city.phaseId}`}>⚔️ Enfrentar o chefão</Link>
         )}
         {status === 'done' && <p className="muted">🏁 Cidade concluída · cartão-postal conquistado</p>}
+        {dev && (
+          <div className="row dev-row">
+            <Link className="button" to={`/estudar?tipo=city&cidade=${city.phaseId}`}>🛠️ 10 novas</Link>
+            <Link className="button" to={`/chefao/${city.phaseId}`}>🛠️ Chefão</Link>
+          </div>
+        )}
       </div>
     </li>
   )

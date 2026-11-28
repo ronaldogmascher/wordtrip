@@ -1,6 +1,7 @@
 import { useLiveQuery } from 'dexie-react-hooks'
 import { NavLink, Route, Routes } from 'react-router-dom'
 import { db } from './db/db.ts'
+import ScrollToTop from './components/ScrollToTop.tsx'
 import Boss from './screens/Boss.tsx'
 import JourneyMap from './screens/Map.tsx'
 import Manual from './screens/Manual.tsx'
@@ -42,6 +43,7 @@ export default function App() {
 
   return (
     <div className="app">
+      <ScrollToTop />
       <main className="content">
         <Routes>
           <Route path="/" element={<Home />} />

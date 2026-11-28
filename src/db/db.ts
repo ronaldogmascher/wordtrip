@@ -32,6 +32,10 @@ export interface Settings {
   recoveryActive: boolean
   /** Short sounds for right and wrong answers. */
   soundEffects: boolean
+  /** "Seguro do motorhome": remind to save a backup every N days (0 = never). */
+  backupReminderDays: number
+  /** When the last backup file was saved (or restored). */
+  lastBackupAt?: Date
 }
 
 export const DEFAULT_SETTINGS: Settings = {
@@ -43,6 +47,7 @@ export const DEFAULT_SETTINGS: Settings = {
   uiLanguage: 'pt',
   recoveryActive: false,
   soundEffects: true,
+  backupReminderDays: 7,
 }
 
 /** How a sense is answered: multiple choice first, typing once it is mastered. */
