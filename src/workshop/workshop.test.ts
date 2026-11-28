@@ -29,7 +29,7 @@ describe('pickWeakWords', () => {
 })
 
 describe('workshopReason', () => {
-  const boss = (daysAgo: number): BossAttempt => ({ phaseId: 'p', at: new Date(now.getTime() - daysAgo * 86400000), correct: 18, total: 20, passed: true })
+  const boss = (daysAgo: number): BossAttempt => ({ phaseId: 'en:a1:01', at: new Date(now.getTime() - daysAgo * 86400000), correct: 18, total: 20, passed: true })
   const last = { at: new Date(now.getTime() - 10 * 86400000), senseIds: [], produced: [] }
   it('needs enough weak words', () => {
     expect(workshopReason(2, undefined, [], now)).toBeNull()
@@ -39,6 +39,7 @@ describe('workshopReason', () => {
     expect(workshopReason(5, last, [boss(20)], now)).toBeNull()
     expect(workshopReason(5, last, [boss(2)], now)).toBe('city')
     expect(workshopReason(5, { ...last, at: new Date(now.getTime() - 31 * 86400000) }, [], now)).toBe('monthly')
+    expect(workshopReason(5, last, [{ ...boss(2), phaseId: 'school:cnh' }], now)).toBeNull()
   })
 })
 

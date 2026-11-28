@@ -82,8 +82,18 @@ export default function Manual() {
           <p>Tudo fica guardado só neste aparelho. Em Ajustes → Seguro do motorhome você salva um arquivo com toda a sua viagem e pode carregá-lo depois, no mesmo celular ou em outro. O app lembra de renovar o seguro (semanal por padrão; dá para mudar ou desligar).</p>
         </details>
         <details>
-          <summary>🏋️ Academia</summary>
-          <p>Treinos livres, sem limite diário e sem mexer nas revisões: números, horas e cores, a trilha de pronúncia (IPA), tempos verbais e regrinhas de gramática, e a Oficina, que reforça as palavras que você mais erra com âncoras, ditado e frases suas.</p>
+          <summary>🚗 Autoescola</summary>
+          <p>Quem começa do zero ou com o básico da escola tira a carteira de motorista antes de viajar. As <strong>aulas iniciais</strong> ensinam o alfabeto, cumprimentos, números, pronomes e verbo to be, cores, família, casa, comida, dias e meses, e perguntas básicas. Cada aula tem uma parte para conhecer as palavras (ouça e repita em voz alta) e um exercício de múltipla escolha. A <strong>prova da CNH</strong> tem 30 perguntas de todas as aulas; acertando 80%, o mapa abre. Se não passar, a segunda tentativa é na hora; depois de 2, espere 24 horas.</p>
+          <p>A Autoescola fica sempre aberta para reciclagem, junto com a <strong>prática livre</strong>: números, horas e cores, a trilha de pronúncia (IPA), tempos verbais e regrinhas de gramática, e a Oficina, que reforça as palavras que você mais erra com âncoras, ditado e frases suas. Nada disso mexe nas revisões.</p>
+        </details>
+        <details>
+          <summary>🌱 Seu nível e o modo iniciante</summary>
+          <ul>
+            <li><strong>Do zero ou pré-iniciante:</strong> começa na Autoescola; o mapa abre com a CNH.</li>
+            <li><strong>Iniciante:</strong> vai direto para o mapa.</li>
+            <li><strong>Intermediário ou avançado:</strong> pode fazer a prova de nivelamento (50 perguntas do trecho A1, 2 tentativas). Passando, as cidades do Brasil ficam concluídas e as palavras delas entram como revisões leves.</li>
+          </ul>
+          <p>No <strong>modo iniciante</strong> (ligado para os três primeiros níveis), a tradução da definição já vem aberta em todo card e não desconta na nota. Desligue em Ajustes quando entender a maioria das definições em inglês: aí o botão Traduzir volta a descontar.</p>
         </details>
       </div>
       <div className="row">

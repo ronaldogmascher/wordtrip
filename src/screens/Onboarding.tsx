@@ -1,7 +1,8 @@
 import { useState } from 'react'
-import { db, getSettings, type CharacterChoice, type PetChoice, type Profile } from '../db/db.ts'
+import { db, getSettings, type EnglishLevel, type CharacterChoice, type PetChoice, type Profile } from '../db/db.ts'
 import HowItWorks from '../components/HowItWorks.tsx'
 import { CHARACTERS, PETS } from '../game/traveler.ts'
+import { LEVELS, STARTS_AS_BEGINNER } from '../school/levels.ts'
 
 // First launch: who is traveling. Everything can be changed later in Ajustes.
 
@@ -9,6 +10,7 @@ export default function Onboarding() {
   const [step, setStep] = useState(0)
   const [name, setName] = useState('')
   const [homeCity, setHomeCity] = useState('')
+  const [level, setLevel] = useState<EnglishLevel>('zero')
   const [character, setCharacter] = useState<CharacterChoice>('male')
   const [pet, setPet] = useState<PetChoice>('dog')
   const [petName, setPetName] = useState('')
@@ -17,14 +19,14 @@ export default function Onboarding() {
 
   async function finish() {
     const profile: Profile = {
-      id: 'me', name: name.trim(), homeCity: homeCity.trim() || undefined, character, pet, petName: pet === 'none' ? undefined : petName.trim() || undefined,
+      id: 'me', name: name.trim(), homeCity: homeCity.trim() || undefined, level, character, pet, petName: pet === 'none' ? undefined : petName.trim() || undefined,
       motorhomeName: motorhomeName.trim() || 'Motorhome', language: 'en', createdAt: new Date(),
     }
     const settings = await getSettings()
     // Right after the setup, the app opens on the study tips.
     window.location.hash = '#/dicas'
     await db.transaction('rw', db.profile, db.settings, async () => {
-      await db.settings.put({ ...settings, newPerDay })
+      await db.settings.put({ ...settings, newPerDay, beginnerMode: STARTS_AS_BEGINNER.includes(level) })
       await db.profile.put(profile)
     })
   }
@@ -58,6 +60,25 @@ export default function Onboarding() {
       )}
       {step === 2 && (
         <div className="card">
+          <h2>Qual é o seu nível de inglês hoje?</h2>
+          <p className="muted">Assim a viagem começa no ponto certo para você. Dá para mudar o modo iniciante depois nos Ajustes.</p>
+          <div className="level-list">
+            {LEVELS.map((l) => (
+              <button key={l.value} className="choice level-choice" aria-pressed={level === l.value} onClick={() => setLevel(l.value)}>
+                <strong>{l.icon} {l.label}</strong>
+                <span className="muted">{l.text}</span>
+              </button>
+            ))}
+          </div>
+          <p className="level-plan">{LEVELS.find((l) => l.value === level)?.plan}</p>
+          <div className="row">
+            <button className="button" onClick={() => setStep(1)}>Voltar</button>
+            <button className="button primary" onClick={() => setStep(3)}>Continuar</button>
+          </div>
+        </div>
+      )}
+      {step === 3 && (
+        <div className="card">
           <h2>Quem vai dirigir?</h2>
           <div className="choice-grid">
             {CHARACTERS.map((c) => (
@@ -81,12 +102,12 @@ export default function Onboarding() {
             </label>
           )}
           <div className="row">
-            <button className="button" onClick={() => setStep(1)}>Voltar</button>
-            <button className="button primary" onClick={() => setStep(3)}>Continuar</button>
+            <button className="button" onClick={() => setStep(2)}>Voltar</button>
+            <button className="button primary" onClick={() => setStep(4)}>Continuar</button>
           </div>
         </div>
       )}
-      {step === 3 && (
+      {step === 4 && (
         <div className="card">
           <h2>Dê um nome ao seu motorhome</h2>
           <p className="muted">Ele é a sua casa na estrada e aparece no mapa.</p>
@@ -98,7 +119,7 @@ export default function Onboarding() {
           <input type="range" min={5} max={50} step={5} value={newPerDay} onChange={(e) => setNewPerDay(Number(e.target.value))} className="slider" aria-label="Palavras novas por dia" />
           <p className="muted"><strong>{newPerDay}</strong> por dia. O padrão é 15; dá para mudar depois nos Ajustes.</p>
           <div className="row">
-            <button className="button" onClick={() => setStep(2)}>Voltar</button>
+            <button className="button" onClick={() => setStep(3)}>Voltar</button>
             <button className="button primary" onClick={() => void finish()}>Pegar a estrada! 🚐</button>
           </div>
         </div>

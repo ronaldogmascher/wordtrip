@@ -17,7 +17,7 @@ import { useDevMode } from '../dev.ts'
 // City boss: written questions with no translation and no hint. Win with 80% to unlock the next
 // city and earn its postcard; the border boss (last city of the leg) also upgrades the motorhome.
 
-interface Answer { question: BossQuestion; typed: string; check: AnswerCheck }
+export interface Answer { question: BossQuestion; typed: string; check: AnswerCheck }
 
 export default function Boss() {
   const { phaseId } = useParams()
@@ -127,7 +127,7 @@ function allRouteCards(city: City, cities: City[]) {
   return phases.filter((p) => ids.includes(p.id)).flatMap((p) => p.senses).map((s) => ({ senseId: s.id }) as StudyCard)
 }
 
-function BossQuestionCard({ title, question, number, total, rightSoFar, dev, onAnswer }: {
+export function BossQuestionCard({ title, question, number, total, rightSoFar, dev, onAnswer }: {
   title: string; question: BossQuestion; number: number; total: number; rightSoFar: number; dev: boolean; onAnswer: (a: Answer) => void
 }) {
   const [typed, setTyped] = useState('')

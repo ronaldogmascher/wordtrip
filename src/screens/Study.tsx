@@ -42,12 +42,14 @@ export default function Study() {
   const [xp, setXp] = useState(0)
   const [accent, setAccent] = useState<Accent>('US')
   const [soundEffects, setSoundEffects] = useState(true)
+  const [beginnerMode, setBeginnerMode] = useState(false)
 
   useEffect(() => {
     void buildQueue(kind, new Date(), detourId, phaseId).then(setQueue)
     void getSettings().then((s) => {
       setAccent(s.accent)
       setSoundEffects(s.soundEffects)
+      setBeginnerMode(s.beginnerMode)
     })
   }, [kind, detourId, phaseId])
 
@@ -89,6 +91,7 @@ export default function Study() {
         key={item.card.id + index}
         item={item}
         accent={accent}
+        beginnerMode={beginnerMode}
         soundEffects={soundEffects}
         onDone={(gained, updated) => {
           setXp((x) => x + gained)
@@ -103,9 +106,11 @@ export default function Study() {
   )
 }
 
-function CardView({ item, accent, soundEffects, onDone }: {
+function CardView({ item, accent, beginnerMode, soundEffects, onDone }: {
   item: QueueItem
   accent: Accent
+  /** Modo iniciante: the definition's translation is open from the start and costs nothing. */
+  beginnerMode: boolean
   soundEffects: boolean
   onDone: (xp: number, updated: StudyCard) => void
 }) {
@@ -203,7 +208,7 @@ function CardView({ item, accent, soundEffects, onDone }: {
       </div>
 
       <p className="definition"><TappableText text={sense.definition} onWord={setLookup} /></p>
-      {(usedTranslation || answered) && sense.definitionPt && <p className="translation"><Flag country="BR" /> {sense.definitionPt}</p>}
+      {(usedTranslation || answered || beginnerMode) && sense.definitionPt && <p className="translation"><Flag country="BR" /> {sense.definitionPt}</p>}
 
       <p className="sentence">
         <TappableText text={before} onWord={setLookup} />
@@ -222,7 +227,7 @@ function CardView({ item, accent, soundEffects, onDone }: {
       {!answered && (
         <>
           <div className="tools">
-            {sense.definitionPt && <button onClick={() => setUsedTranslation(true)} disabled={usedTranslation}>Traduzir</button>}
+            {sense.definitionPt && !beginnerMode && <button onClick={() => setUsedTranslation(true)} disabled={usedTranslation}>Traduzir</button>}
             <button onClick={() => setUsedHint(true)} disabled={usedHint}>Dica</button>
             {isNew && mode === 'choice' && !knownAttempt && (
               <button onClick={() => { setKnownAttempt(true); setMode('typing') }}>Já sei</button>

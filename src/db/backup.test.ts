@@ -15,7 +15,7 @@ describe('backup', () => {
 
     const target = new WordTripDB('backup-target')
     await target.rewards.put({ phaseId: 'old', text: 'apagar' })
-    await target.settings.put({ id: 'app', newPerDay: 15, dailyGoalMinutes: 15, accent: 'US', pomodoro: { studyMinutes: 15, breakMinutes: 4, longBreakMinutes: 10, cyclesBeforeLongBreak: 4 }, uiLanguage: 'pt', recoveryActive: false, soundEffects: true, backupReminderDays: 7 })
+    await target.settings.put({ id: 'app', newPerDay: 15, dailyGoalMinutes: 15, accent: 'US', pomodoro: { studyMinutes: 15, breakMinutes: 4, longBreakMinutes: 10, cyclesBeforeLongBreak: 4 }, uiLanguage: 'pt', recoveryActive: false, soundEffects: true, backupReminderDays: 7, beginnerMode: false })
     await restoreBackup(target, decodeBackup(text))
 
     const profile = await target.profile.get('me')

@@ -6,6 +6,8 @@ import Boss from './screens/Boss.tsx'
 import JourneyMap from './screens/Map.tsx'
 import Manual from './screens/Manual.tsx'
 import Tips from './screens/Tips.tsx'
+import School from './screens/School.tsx'
+import Placement from './screens/Placement.tsx'
 import Onboarding from './screens/Onboarding.tsx'
 import Dictionary from './screens/Dictionary.tsx'
 import DetourNew from './screens/DetourNew.tsx'
@@ -65,6 +67,8 @@ export default function App() {
           <Route path="/ajustes" element={<Settings />} />
           <Route path="/manual" element={<Manual />} />
           <Route path="/dicas" element={<Tips />} />
+          <Route path="/autoescola" element={<School />} />
+          <Route path="/nivelamento" element={<Placement />} />
         </Routes>
       </main>
       <nav className="tabbar" aria-label="Navegação principal">

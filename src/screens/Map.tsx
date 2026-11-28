@@ -11,6 +11,8 @@ import { LIGHTS } from '../study/lights.ts'
 import { timeUntil } from '../study/when.ts'
 import { characterIcon, petIcon } from '../game/traveler.ts'
 import { routeCities } from '../game/route.ts'
+import { hasLicense } from '../school/quiz.ts'
+import { NEEDS_LICENSE } from '../school/levels.ts'
 import { useDevMode } from '../dev.ts'
 
 // The journey map: a trail (not geographic) from the traveler's home city to the border in Foz do Iguaçu.
@@ -25,6 +27,18 @@ export default function JourneyMap() {
 
   if (!data) return <section className="screen"><p className="muted">Carregando…</p></section>
   const { route, progress, bosses, profile, rewards, now } = data
+  if (profile?.level && NEEDS_LICENSE.includes(profile.level) && !hasLicense(bosses)) {
+    return (
+      <section className="screen">
+        <h1>🗺️ Mapa da jornada</h1>
+        <div className="card school-gate">
+          <h2>🚧 Estrada fechada para quem ainda não tem CNH</h2>
+          <p>O mapa abre quando você passar na prova da CNH, na Autoescola. Lá você aprende o básico do inglês antes de pegar a estrada.</p>
+          <Link className="button primary" to="/autoescola">Ir para a Autoescola</Link>
+        </div>
+      </section>
+    )
+  }
   const beatenAt = new Map(bosses.filter((b) => b.passed).map((b) => [b.phaseId, b.at]))
   const postcards = route.filter((c) => beatenAt.has(c.phaseId))
   const upgrades = upgradesEarned([route], bosses)
