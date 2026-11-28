@@ -218,7 +218,7 @@ button.primary.inline { margin-top: 0; }
 .ipa-match { margin-left: auto; }
 .ipa-examples { list-style: none; padding: 0; display: flex; flex-direction: column; gap: 6px; }
 .ipa-pairs { display: flex; flex-wrap: wrap; gap: 6px 12px; align-items: center; }
-.ipa-pair { white-space: nowrap; }
+.ipa-pair { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 6px; flex-basis: 100%; }
 .say { border: 1px solid var(--border); background: var(--surface); color: var(--text); border-radius: 999px; padding: 4px 10px; min-height: 36px; cursor: pointer; }
 .ipa-big { font-family: 'Charis SIL', 'Doulos SIL', 'Noto Sans', serif; font-size: 3rem; font-weight: 700; }
 .ipa-options { display: grid; gap: 8px; }
@@ -235,3 +235,8 @@ button.primary.inline { margin-top: 0; }
 .workshop-text { width: 100%; box-sizing: border-box; font: inherit; padding: 10px; border-radius: 12px; border: 1px solid var(--border); background: var(--surface); color: var(--text); }
 .mnemonic { background: var(--bg); border-left: 4px solid var(--primary); border-radius: 8px; padding: 8px 10px; }
 .workshop-invite { border: 2px solid var(--primary); }
+.gym-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 8px; }
+.gym-grid .button { display: flex; align-items: center; justify-content: center; min-height: 56px; }
+/* Nothing may make the page wider than the phone: a wide page lets the bottom bar slide away. */
+html, body { overflow-x: hidden; }
+.tabbar { z-index: 10; }

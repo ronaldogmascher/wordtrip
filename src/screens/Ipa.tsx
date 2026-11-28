@@ -3,7 +3,7 @@ import { playCorrect, playWrong } from '../audio/effects.ts'
 import { useLiveQuery } from 'dexie-react-hooks'
 import LightBadge from '../components/LightBadge.tsx'
 import { db, getSettings, type Accent, type IpaCard } from '../db/db.ts'
-import { MINIMAL_PAIRS, PT_MATCH, SOUNDS, type Sound, type SoundKind } from '../ipa/sounds.ts'
+import { MINIMAL_PAIRS, pairIpa, PT_MATCH, SOUNDS, type Sound, type SoundKind } from '../ipa/sounds.ts'
 import { answerIpaCard, makeSession, symbolOf, transcriptionOf, type IpaQuestion } from '../ipa/training.ts'
 import { lightOf } from '../study/scheduler.ts'
 import { canSpeak, speak } from '../study/speech.ts'
@@ -31,6 +31,7 @@ export default function Ipa() {
 
   return (
     <section className="screen">
+      <p className="eyebrow">🏋️ Academia</p>
       <h1>🗣️ Trilha de IPA</h1>
       <p className="muted">
         O IPA (Alfabeto Fonético Internacional) mostra como as palavras soam: é o que aparece entre barras nos cards,
@@ -100,7 +101,9 @@ function SoundItem({ sound, accent, card }: { sound: Sound; accent: Accent; card
           Compare:{' '}
           {pairs.map((p) => (
             <span key={p.a + p.b} className="ipa-pair">
-              <Say word={p.a} accent={accent} /> × <Say word={p.b} accent={accent} />
+              <Say word={p.a} accent={accent} /> <span className="muted">/{pairIpa(p.a, accent)}/</span>
+              {' × '}
+              <Say word={p.b} accent={accent} /> <span className="muted">/{pairIpa(p.b, accent)}/</span>
             </span>
           ))}
         </p>

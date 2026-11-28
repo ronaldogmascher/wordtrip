@@ -64,9 +64,9 @@ export default function Home() {
       {workshop && <WorkshopInvite reason={workshop} />}
 
       <div className="card">
-        <h2>Treinos livres</h2>
-        <p className="muted">Fora da rota, sem limite diário.</p>
-        <div className="row">
+        <h2>🏋️ Academia</h2>
+        <p className="muted">Uma parada fora da rota para malhar os músculos do vocabulário. Sem limite diário: treine o que quiser, quando quiser.</p>
+        <div className="gym-grid">
           <Link className="button" to="/numeros">🔢 Números e horas</Link>
           <Link className="button" to="/ipa">🗣️ Trilha de IPA</Link>
           <Link className="button" to="/gramatica">📝 Gramática</Link>
