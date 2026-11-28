@@ -72,7 +72,7 @@ export default function Study() {
         <h1>Sessão concluída! 🚐</h1>
         <div className="card">
           <p><strong>{queue.length}</strong> cards estudados</p>
-          <p><strong>+{xp} XP</strong> nesta sessão</p>
+          <p><strong>+{xp} km</strong> rodados nesta sessão 🚐</p>
           <Link className="button primary" to="/">Voltar ao início</Link>
         </div>
       </section>
