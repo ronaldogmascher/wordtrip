@@ -31,7 +31,7 @@ export default function Ipa() {
 
   return (
     <section className="screen">
-      <p className="eyebrow">🏋️ Academia</p>
+      <p className="eyebrow">🚗 Autoescola · Prática livre</p>
       <h1>🗣️ Trilha de IPA</h1>
       <p className="muted">
         O IPA (Alfabeto Fonético Internacional) mostra como as palavras soam: é o que aparece entre barras nos cards,

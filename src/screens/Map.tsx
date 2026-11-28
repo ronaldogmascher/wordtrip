@@ -11,7 +11,7 @@ import { LIGHTS } from '../study/lights.ts'
 import { timeUntil } from '../study/when.ts'
 import { characterIcon, petIcon } from '../game/traveler.ts'
 import { routeCities } from '../game/route.ts'
-import { hasLicense } from '../school/quiz.ts'
+import { EXAM_ID, hasLicense } from '../school/quiz.ts'
 import { NEEDS_LICENSE } from '../school/levels.ts'
 import { useDevMode } from '../dev.ts'
 
@@ -27,18 +27,8 @@ export default function JourneyMap() {
 
   if (!data) return <section className="screen"><p className="muted">Carregando…</p></section>
   const { route, progress, bosses, profile, rewards, now } = data
-  if (profile?.level && NEEDS_LICENSE.includes(profile.level) && !hasLicense(bosses)) {
-    return (
-      <section className="screen">
-        <h1>🗺️ Mapa da jornada</h1>
-        <div className="card school-gate">
-          <h2>🚧 Estrada fechada para quem ainda não tem CNH</h2>
-          <p>O mapa abre quando você passar na prova da CNH, na Autoescola. Lá você aprende o básico do inglês antes de pegar a estrada.</p>
-          <Link className="button primary" to="/autoescola">Ir para a Autoescola</Link>
-        </div>
-      </section>
-    )
-  }
+  const locked = Boolean(profile?.level && NEEDS_LICENSE.includes(profile.level) && !hasLicense(bosses))
+  const license = bosses.find((b) => b.phaseId === EXAM_ID && b.passed)
   const beatenAt = new Map(bosses.filter((b) => b.passed).map((b) => [b.phaseId, b.at]))
   const postcards = route.filter((c) => beatenAt.has(c.phaseId))
   const upgrades = upgradesEarned([route], bosses)
@@ -49,9 +39,25 @@ export default function JourneyMap() {
       <p className="eyebrow">Trecho 1 · A1 · Brasil</p>
       <h1>🗺️ Mapa da jornada</h1>
       <p className="muted">De {route[0].name === 'Sua cidade' ? 'sua cidade' : route[0].name} até a fronteira em Foz do Iguaçu. Quando {Math.round(BOSS_READY_SHARE * 100)}% das palavras de uma cidade estiverem amarelas ou verdes, o chefão da cidade aparece. Vencendo, a próxima cidade abre.</p>
+      {locked && (
+        <div className="card school-gate">
+          <h2>🚧 Estrada fechada para quem ainda não tem CNH</h2>
+          <p>O mapa abre quando você passar na prova da CNH, na Autoescola. Lá você aprende o básico do inglês antes de pegar a estrada. Enquanto isso, dá para espiar o caminho aqui embaixo.</p>
+          <Link className="button primary" to="/autoescola">Ir para a Autoescola</Link>
+        </div>
+      )}
+      {license && (
+        <div className="card license-badge">
+          <span className="license-icon" aria-hidden="true">🪪</span>
+          <div>
+            <strong>CNH conquistada!</strong>
+            <p className="muted">Aprovado na prova da Autoescola em {license.at.toLocaleDateString('pt-BR')}. A estrada está liberada.</p>
+          </div>
+        </div>
+      )}
       <ol className="trail">
         {progress.map((p) => (
-          <CityStop key={p.city.phaseId} p={p} bosses={bosses} now={now} reward={rewards.find((r) => r.phaseId === p.city.phaseId)}
+          <CityStop key={p.city.phaseId} p={locked ? { ...p, status: 'ahead', bossReady: false } : p} bosses={bosses} now={now} reward={rewards.find((r) => r.phaseId === p.city.phaseId)}
             traveler={profile ? `${characterIcon(profile.character)}${petIcon(profile.pet)}` : ''} motorhome={profile?.motorhomeName} />
         ))}
         <li className="trail-stop ahead">

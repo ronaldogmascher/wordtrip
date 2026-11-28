@@ -149,7 +149,7 @@ export default function Home() {
       </div>
 
       <div className="card">
-        <h2>Como ler o semáforo</h2>
+        <h2>🚦 Como ler o semáforo</h2>
         <TrafficLight />
         <p><Link to="/manual">📘 Como funciona o WordTrip</Link></p>
       </div>
