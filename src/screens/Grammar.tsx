@@ -42,6 +42,7 @@ export default function Grammar() {
   if (!session) {
     return (
       <section className="screen">
+        <p className="eyebrow">🏋️ Academia</p>
         <h1>📝 Treino de gramática</h1>
         <p className="muted">Pratique os tempos verbais com os verbos da sua rota e as regrinhas que mais confundem (in/on/at, a/an…). Escolha um ou mais temas e misture à vontade.</p>
         <div className="card settings-group">

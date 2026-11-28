@@ -151,6 +151,25 @@ export interface MinimalPair {
   ptB: string
 }
 
+/** Transcriptions of the minimal-pair words: [US, UK]. */
+export const PAIR_IPA: Record<string, [string, string]> = {
+  sheep: ['ʃiːp', 'ʃiːp'], ship: ['ʃɪp', 'ʃɪp'], leave: ['liːv', 'liːv'], live: ['lɪv', 'lɪv'],
+  seat: ['siːt', 'siːt'], sit: ['sɪt', 'sɪt'], bad: ['bæd', 'bæd'], bed: ['bed', 'bed'],
+  man: ['mæn', 'mæn'], men: ['men', 'men'], cap: ['kæp', 'kæp'], cup: ['kʌp', 'kʌp'],
+  cat: ['kæt', 'kæt'], cut: ['kʌt', 'kʌt'], full: ['fʊl', 'fʊl'], fool: ['fuːl', 'fuːl'],
+  pull: ['pʊl', 'pʊl'], pool: ['puːl', 'puːl'], walk: ['wɔːk', 'wɔːk'], work: ['wɝːk', 'wɜːk'],
+  coat: ['koʊt', 'kəʊt'], caught: ['kɔːt', 'kɔːt'], low: ['loʊ', 'ləʊ'], law: ['lɔː', 'lɔː'],
+  think: ['θɪŋk', 'θɪŋk'], sink: ['sɪŋk', 'sɪŋk'], three: ['θriː', 'θriː'], tree: ['triː', 'triː'],
+  thank: ['θæŋk', 'θæŋk'], tank: ['tæŋk', 'tæŋk'], they: ['ðeɪ', 'ðeɪ'], day: ['deɪ', 'deɪ'],
+  then: ['ðen', 'ðen'], den: ['den', 'den'], hat: ['hæt', 'hæt'], at: ['æt', 'æt'],
+  heat: ['hiːt', 'hiːt'], eat: ['iːt', 'iːt'], light: ['laɪt', 'laɪt'], right: ['raɪt', 'raɪt'],
+  glass: ['ɡlæs', 'ɡlɑːs'], grass: ['ɡræs', 'ɡrɑːs'], very: ['ˈveri', 'ˈveri'], berry: ['ˈberi', 'ˈberi'],
+  cheap: ['tʃiːp', 'tʃiːp'], watch: ['wɑːtʃ', 'wɒtʃ'], wash: ['wɑːʃ', 'wɒʃ'],
+  sing: ['sɪŋ', 'sɪŋ'], sin: ['sɪn', 'sɪn'], win: ['wɪn', 'wɪn'], wing: ['wɪŋ', 'wɪŋ'],
+}
+
+export const pairIpa = (word: string, accent: 'US' | 'UK') => PAIR_IPA[word]?.[accent === 'US' ? 0 : 1]
+
 /** Pairs of words that differ by one sound: the core of ear training. */
 export const MINIMAL_PAIRS: MinimalPair[] = [
   { a: 'sheep', b: 'ship', sounds: ['i-long', 'i-short'], ptA: 'ovelha', ptB: 'navio' },

@@ -39,6 +39,7 @@ export default function Numbers() {
   if (!session) {
     return (
       <section className="screen">
+        <p className="eyebrow">🏋️ Academia</p>
         <h1>🔢 Números e horas</h1>
         <p className="muted">Treino livre de números, horas, preços, datas, medidas e contas faladas, com áudio. As perguntas mudam a cada sessão.</p>
         <div className="card settings-group">
