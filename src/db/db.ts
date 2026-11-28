@@ -177,8 +177,8 @@ export interface IpaReview {
   id?: number
   soundId: string
   at: Date
-  /** 'hear' = heard a word and picked its transcription; 'symbol' = saw the symbol and picked a word. */
-  kind: 'hear' | 'symbol'
+  /** 'hear' = heard a word, picked its sound; 'symbol' = saw the symbol, picked a word; 'pair' = minimal pair. */
+  kind: 'hear' | 'symbol' | 'pair'
   correct: boolean
 }
 

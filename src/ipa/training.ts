@@ -22,12 +22,18 @@ export const CONFUSABLE: Record<string, string[]> = {
 export const NEW_SOUNDS_PER_SESSION = 4
 export const SESSION_SIZE = 10
 
+export type IpaQuestionKind = 'hear' | 'symbol' | 'pair'
+
 export interface IpaQuestion {
   sound: Sound
-  kind: 'hear' | 'symbol'
-  /** 'hear': the word read aloud. 'symbol': the right word among the options. */
+  /**
+   * 'hear': a word is read aloud, pick the symbol of its sound.
+   * 'symbol': a big symbol is shown, pick the word that has it.
+   * 'pair': one word of a minimal pair is read aloud, pick which one.
+   */
+  kind: IpaQuestionKind
+  /** The word read aloud ('hear', 'pair') or the right word ('symbol'). */
   word: string
-  /** 'hear': the big symbol hint is hidden until answered; options are transcriptions. */
   prompt: string
   options: string[]
   answer: string
@@ -52,33 +58,35 @@ export const transcriptionOf = (e: Example, accent: Accent) => (accent === 'US' 
 /** Single-symbol sounds can be swapped inside a transcription; groups like "p t k" cannot. */
 const swappable = (symbol: string) => !symbol.includes(' ')
 
-/** Wrong transcriptions made by swapping the target symbol for a confusable one: /ʃiːp/ → /ʃɪp/. */
-function fakeTranscriptions(sound: Sound, example: Example, accent: Accent): string[] {
+/** Hear a word, pick the symbol of its sound among confusable ones. */
+function hearQuestion(sound: Sound, accent: Accent, rng: Rng): IpaQuestion {
+  const example = pick(rng, sound.examples)
   const own = symbolOf(sound, accent)
   const real = transcriptionOf(example, accent)
-  if (!swappable(own) || !real.includes(own)) return []
-  return (CONFUSABLE[sound.id] ?? [])
-    .map((id) => soundById(id))
-    .filter((s): s is Sound => !!s && swappable(symbolOf(s, accent)) && symbolOf(s, accent) !== own)
-    .map((s) => real.replace(own, symbolOf(s, accent)))
+  // A wrong symbol that is also in the word would make two right answers.
+  const fits = (symbol: string) => symbol !== own && !(swappable(symbol) && real.includes(symbol))
+  const wrong = [...new Set((CONFUSABLE[sound.id] ?? []).map((id) => soundById(id)).filter((s): s is Sound => !!s).map((s) => symbolOf(s, accent)))]
+    .filter(fits)
+    .slice(0, 2)
+  for (const other of shuffle(rng, SOUNDS)) {
+    if (wrong.length >= 2) break
+    const symbol = symbolOf(other, accent)
+    if (other.kind === sound.kind && fits(symbol) && !wrong.includes(symbol)) wrong.push(symbol)
+  }
+  const answer = `/${own}/`
+  return {
+    sound, kind: 'hear', word: example.word, prompt: 'Ouça a palavra e escolha o som que ela tem.',
+    options: shuffle(rng, [answer, ...wrong.map((w) => `/${w}/`)]), answer,
+  }
 }
 
-/** Hear a word, pick its transcription among near-identical ones. */
-function hearQuestion(sound: Sound, accent: Accent, rng: Rng): IpaQuestion | null {
-  for (const example of shuffle(rng, sound.examples)) {
-    const answer = `/${transcriptionOf(example, accent)}/`
-    const wrong = [...new Set(fakeTranscriptions(sound, example, accent).map((t) => `/${t}/`))].filter((t) => t !== answer)
-    // A real minimal-pair partner beats a made-up transcription.
-    const pair = MINIMAL_PAIRS.find((p) => p.a === example.word || p.b === example.word)
-    if (wrong.length) {
-      return {
-        sound, kind: 'hear', word: example.word, prompt: 'Ouça e escolha a transcrição certa.',
-        options: shuffle(rng, [answer, ...wrong.slice(0, 2)]), answer,
-      }
-    }
-    if (pair) continue
-  }
-  return null
+/** Hear one word of a minimal pair (sheep × ship), pick which one it was. */
+function pairQuestion(sound: Sound, rng: Rng): IpaQuestion | null {
+  const pairs = MINIMAL_PAIRS.filter((p) => p.sounds.includes(sound.id))
+  if (!pairs.length) return null
+  const pair = pick(rng, pairs)
+  const word = rng() < 0.5 ? pair.a : pair.b
+  return { sound, kind: 'pair', word, prompt: 'Ouça com atenção: qual das duas palavras foi dita?', options: [pair.a, pair.b], answer: word }
 }
 
 /** See a big symbol, pick the word that has this sound. */
@@ -102,22 +110,21 @@ function symbolQuestion(sound: Sound, accent: Accent, rng: Rng): IpaQuestion {
   }
 }
 
-export function makeQuestion(sound: Sound, accent: Accent, preferHear: boolean, rng: Rng = Math.random): IpaQuestion {
-  if (preferHear) {
-    const q = hearQuestion(sound, accent, rng)
-    if (q) return q
-  }
-  return symbolQuestion(sound, accent, rng)
+export const QUESTION_KINDS: IpaQuestionKind[] = ['hear', 'symbol', 'pair']
+
+export function makeQuestion(sound: Sound, accent: Accent, kind: IpaQuestionKind, rng: Rng = Math.random): IpaQuestion {
+  if (kind === 'pair') return pairQuestion(sound, rng) ?? hearQuestion(sound, accent, rng)
+  return kind === 'hear' ? hearQuestion(sound, accent, rng) : symbolQuestion(sound, accent, rng)
 }
 
 /**
  * Picks the sounds for a session: due ones first (most overdue first), then up to
  * NEW_SOUNDS_PER_SESSION new ones in teaching order, then the weakest of the rest.
  */
-export function pickSessionSounds(cards: IpaCard[], now: Date, size = SESSION_SIZE): Sound[] {
+export function pickSessionSounds(cards: IpaCard[], now: Date, open: string[] = SOUNDS.map((s) => s.id), size = SESSION_SIZE): Sound[] {
   const byId = new Map(cards.map((c) => [c.id, c]))
   const due = cards.filter((c) => c.fsrs.due <= now).sort((a, b) => +a.fsrs.due - +b.fsrs.due).map((c) => c.id)
-  const fresh = SOUNDS.filter((s) => !byId.has(s.id)).slice(0, NEW_SOUNDS_PER_SESSION).map((s) => s.id)
+  const fresh = open.filter((id) => !byId.has(id)).slice(0, NEW_SOUNDS_PER_SESSION)
   const rest = cards
     .filter((c) => c.fsrs.due > now)
     .sort((a, b) => a.fsrs.stability - b.fsrs.stability)
@@ -133,14 +140,22 @@ export function answerIpaCard(card: IpaCard | undefined, soundId: string, correc
 }
 
 /**
- * A full session: alternates "hear" and "symbol" questions over the picked sounds.
- * A sound seen for the first time gets both kinds, so it is learned from both sides.
+ * A full session over the open sounds, rotating the three kinds of question.
+ * A sound seen for the first time gets a second question of another kind.
  */
-export function makeSession(cards: IpaCard[], accent: Accent, now = new Date(), rng: Rng = Math.random): IpaQuestion[] {
+export function makeSession(cards: IpaCard[], accent: Accent, open?: string[], now = new Date(), rng: Rng = Math.random): IpaQuestion[] {
   const known = new Set(cards.map((c) => c.id))
-  const questions = pickSessionSounds(cards, now).map((sound, i) => makeQuestion(sound, accent, i % 2 === 0, rng))
-  const extra = questions
-    .filter((q) => !known.has(q.sound.id))
-    .map((q) => makeQuestion(q.sound, accent, q.kind === 'symbol', rng))
+  const kindAt = (i: number) => QUESTION_KINDS[i % QUESTION_KINDS.length]
+  const sounds = pickSessionSounds(cards, now, open)
+  const questions = sounds.map((sound, i) => makeQuestion(sound, accent, kindAt(i), rng))
+  const extra = sounds.flatMap((sound, i) => (known.has(sound.id) ? [] : [makeQuestion(sound, accent, kindAt(i + 1), rng)]))
   return [...questions, ...extra]
+}
+
+/** A boss test: `count` questions over the given sounds, every sound at least once when it fits. */
+export function makeBossTest(soundIds: string[], count: number, accent: Accent, rng: Rng = Math.random): IpaQuestion[] {
+  const sounds = soundIds.map((id) => soundById(id)).filter((s): s is Sound => !!s)
+  const order: Sound[] = []
+  while (order.length < count) order.push(...shuffle(rng, sounds))
+  return order.slice(0, count).map((sound, i) => makeQuestion(sound, accent, QUESTION_KINDS[i % QUESTION_KINDS.length], rng))
 }
