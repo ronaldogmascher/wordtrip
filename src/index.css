@@ -314,3 +314,12 @@ html, body { overflow-x: hidden; }
 .card:has(.info-icon) { position: relative; }
 .info-icon { position: static; }
 .info-icon .info-bubble { top: 52px; left: 12px; right: 12px; width: auto; max-width: none; }
+.legs { padding-left: 20px; }
+.legs li { margin-bottom: 8px; }
+.legs p { margin: 2px 0 0; font-size: 0.9rem; }
+.dev-row { margin-top: 8px; }
+.dev-note { color: var(--yellow); font-weight: 600; }
+.insurance-invite { border: 2px solid var(--yellow); }
+.dev-card { border: 2px dashed var(--yellow); }
+.version { text-align: center; font-size: 0.8rem; user-select: none; -webkit-user-select: none; }
+.field input[type='file'] { font-size: 0.9rem; }

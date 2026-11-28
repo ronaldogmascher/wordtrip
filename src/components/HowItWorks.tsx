@@ -1,7 +1,7 @@
 // The quick introduction shown on first launch and at the top of the manual.
 
 const INTRO = [
-  { icon: '🚐', text: 'Você dirige um motorhome de Santo André até Nova York. Cada cidade é uma fase com 50 palavras em inglês.' },
+  { icon: '🚐', text: 'Você dirige um motorhome partindo de Santo André, no Brasil, com destino final em Nova York, nos EUA. O objetivo é levar você do nível A1 (iniciante) ao B2 (intermediário avançado, umas 4.000 palavras). Cada cidade é uma fase com 50 palavras em inglês.' },
   { icon: '🃏', text: 'Cada card mostra uma definição em inglês e uma frase com lacuna. Primeiro você escolhe entre opções; depois que acerta algumas vezes, passa a digitar.' },
   { icon: '🚦', text: 'O semáforo mostra cada palavra: 🔴 descobrindo, 🟡 aprendendo, 🟢 aprendida (lembrada por 21 dias ou mais).' },
   { icon: '📅', text: 'O app decide quando cada palavra volta, bem antes de você esquecer. Basta fazer a sessão do dia, de preferência todo dia.' },

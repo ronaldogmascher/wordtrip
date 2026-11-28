@@ -36,6 +36,7 @@ export default function Study() {
   const [params] = useSearchParams()
   const kind = (params.get('tipo') as SessionKind) ?? 'mixed'
   const detourId = params.get('desvio') ? Number(params.get('desvio')) : undefined
+  const phaseId = params.get('cidade') ?? undefined
   const [queue, setQueue] = useState<QueueItem[] | null>(null)
   const [index, setIndex] = useState(0)
   const [xp, setXp] = useState(0)
@@ -43,12 +44,12 @@ export default function Study() {
   const [soundEffects, setSoundEffects] = useState(true)
 
   useEffect(() => {
-    void buildQueue(kind, new Date(), detourId).then(setQueue)
+    void buildQueue(kind, new Date(), detourId, phaseId).then(setQueue)
     void getSettings().then((s) => {
       setAccent(s.accent)
       setSoundEffects(s.soundEffects)
     })
-  }, [kind, detourId])
+  }, [kind, detourId, phaseId])
 
   const done = queue !== null && index >= queue.length
   useActiveTime(queue !== null && !done)

@@ -3,8 +3,9 @@ import { Link } from 'react-router-dom'
 import Info, { InfoIcon } from '../components/Info.tsx'
 import TrafficLight from '../components/TrafficLight.tsx'
 import { cities, phases } from '../content/index.ts'
-import { db } from '../db/db.ts'
+import { db, getSettings } from '../db/db.ts'
 import { nextTryAt } from '../game/boss.ts'
+import { backupDue } from '../db/backup.ts'
 import { fuel, levelOf, routeProgress, totalKm } from '../game/progress.ts'
 import { pickWeakWords, workshopReason, type WorkshopReason } from '../workshop/workshop.ts'
 import { dayPlan, localDate } from '../study/session.ts'
@@ -25,12 +26,13 @@ export default function Home() {
   })
 
   const trip = useLiveQuery(async () => {
-    const [days, cards, bosses, profile] = await Promise.all([db.days.toArray(), db.cards.toArray(), db.bossAttempts.toArray(), db.profile.get('me')])
+    const [days, cards, bosses, profile, settings] = await Promise.all([db.days.toArray(), db.cards.toArray(), db.bossAttempts.toArray(), db.profile.get('me'), getSettings()])
     const km = totalKm(days)
     const current = routeProgress(cities, phases, cards, bosses).find((p) => p.status === 'current')
     const now = new Date()
     const tryAt = current?.bossReady ? nextTryAt(current.city.phaseId, bosses, now) : null
-    return { km, fuel: fuel(km), level: levelOf(km).level, current, profile, bossNow: tryAt !== null && tryAt <= now }
+    return { km, fuel: fuel(km), level: levelOf(km).level, current, profile, bossNow: tryAt !== null && tryAt <= now,
+      insuranceDue: cards.length > 0 && backupDue(settings.backupReminderDays, settings.lastBackupAt, profile?.createdAt, now) }
   })
 
   return (
@@ -97,6 +99,14 @@ export default function Home() {
           <h2>⚔️ O chefão de {trip.current.city.name} apareceu!</h2>
           <p>Você já domina {Math.round(trip.current.share * 100)}% das palavras da cidade. Vença o chefão para seguir viagem.</p>
           <Link className="button primary" to={`/chefao/${trip.current.city.phaseId}`}>Enfrentar o chefão</Link>
+        </div>
+      )}
+
+      {trip?.insuranceDue && (
+        <div className="card insurance-invite">
+          <h2>🛡️ Hora de renovar o seguro do motorhome</h2>
+          <p>Salve um arquivo com o seu progresso para não perder nada se algo acontecer com o celular.</p>
+          <Link className="button primary" to="/ajustes">Ir para o seguro</Link>
         </div>
       )}
 

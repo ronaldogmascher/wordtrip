@@ -3,6 +3,8 @@ import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { db, getSettings, type Profile, type Settings as AppSettings } from '../db/db.ts'
 import { CHARACTERS, PETS } from '../game/traveler.ts'
+import { backupFileName, createBackup, decodeBackup, encodeBackup, restoreBackup } from '../db/backup.ts'
+import { setDevMode, useDevMode } from '../dev.ts'
 import { getTheme, setTheme, type ThemeChoice } from '../theme.ts'
 
 const MIN_NEW_PER_DAY = 5
@@ -107,7 +109,11 @@ export default function Settings() {
         <Link className="button" to="/manual">Abrir o manual</Link>
       </div>
 
+      <InsuranceCard />
+
       <ResetCard />
+
+      <VersionLine />
     </section>
   )
 }
@@ -165,6 +171,7 @@ function ResetCard() {
     <div className="card danger">
       <h2>🧨 Zerar tudo</h2>
       <p className="muted">Apaga o perfil, todas as palavras estudadas, o histórico, o Diário, os chefões e as recompensas deste aparelho, e a viagem recomeça do zero. O dicionário baixado continua.</p>
+      <p className="muted">💡 Antes, salve um seguro do motorhome (acima): se se arrepender, é só carregar o arquivo.</p>
       {!confirming ? (
         <button className="button" onClick={() => setConfirming(true)}>Zerar e começar de novo</button>
       ) : (
@@ -180,5 +187,105 @@ function ResetCard() {
         </form>
       )}
     </div>
+  )
+}
+
+const REMINDER_OPTIONS = [
+  { value: '0', label: 'Nunca' },
+  { value: '7', label: 'Semanal' },
+  { value: '14', label: '15 dias' },
+  { value: '30', label: 'Mensal' },
+]
+
+/**
+ * "Seguro do motorhome": save all progress to a file and load it back. Browsers cannot save files
+ * on their own, so instead of an automatic backup the app reminds the learner periodically.
+ */
+function InsuranceCard() {
+  const settings = useLiveQuery(getSettings)
+  const [message, setMessage] = useState<string | null>(null)
+  const [pending, setPending] = useState<File | null>(null)
+
+  const save = async () => {
+    const now = new Date()
+    const text = encodeBackup(await createBackup(db, now))
+    const file = new File([text], backupFileName(now), { type: 'application/json' })
+    const url = URL.createObjectURL(file)
+    const link = document.createElement('a')
+    link.href = url
+    link.download = file.name
+    link.click()
+    setTimeout(() => URL.revokeObjectURL(url), 10_000)
+    await db.settings.put({ ...(await getSettings()), lastBackupAt: now })
+    setMessage(`Seguro salvo: ${file.name}. Guarde o arquivo num lugar seguro (Google Drive, e-mail, computador).`)
+  }
+
+  const restore = async () => {
+    if (!pending) return
+    try {
+      await restoreBackup(db, decodeBackup(await pending.text()))
+      setPending(null)
+      setMessage('Seguro carregado! Sua viagem voltou ao ponto em que o arquivo foi salvo.')
+    } catch (e) {
+      setMessage(e instanceof Error ? e.message : 'Não deu para carregar o arquivo.')
+    }
+  }
+
+  return (
+    <div className="card settings-group">
+      <h2>🛡️ Seguro do motorhome</h2>
+      <p className="muted">Salva toda a sua viagem (palavras, histórico, Diário, chefões e recompensas) num arquivo. Se trocar de celular, zerar o app ou algo der errado, é só carregar o arquivo.</p>
+      {settings && (
+        <p className="muted">Último seguro: {settings.lastBackupAt ? settings.lastBackupAt.toLocaleDateString('pt-BR') : 'nenhum ainda'}</p>
+      )}
+      <button className="button primary" onClick={() => void save()}>Salvar seguro agora</button>
+      <label className="field">
+        Carregar um seguro salvo
+        <input type="file" accept="application/json,.json" onChange={(e) => { setPending(e.target.files?.[0] ?? null); setMessage(null) }} />
+      </label>
+      {pending && (
+        <div className="warning">
+          <p>Carregar <strong>{pending.name}</strong> substitui tudo o que está no app agora pelo conteúdo do arquivo.</p>
+          <button className="button danger" onClick={() => void restore()}>Substituir e carregar</button>
+        </div>
+      )}
+      {message && <p role="status">{message}</p>}
+      {settings && (
+        <>
+          <h3>Lembrete para renovar o seguro</h3>
+          <Segmented
+            label="Lembrete do seguro"
+            value={String(settings.backupReminderDays)}
+            options={REMINDER_OPTIONS}
+            onChange={(v) => void db.settings.put({ ...settings, backupReminderDays: Number(v) })}
+          />
+          <p className="muted">O navegador não deixa o app salvar arquivos sozinho, então ele avisa na tela inicial quando estiver na hora.</p>
+        </>
+      )}
+    </div>
+  )
+}
+
+/** The version line. Tapping it 5 times turns the developer mode on or off. */
+function VersionLine() {
+  const dev = useDevMode()
+  const [taps, setTaps] = useState(0)
+  const tap = () => {
+    if (taps + 1 >= 5) {
+      setDevMode(!dev)
+      setTaps(0)
+    } else setTaps(taps + 1)
+  }
+  return (
+    <>
+      {dev && (
+        <div className="card dev-card">
+          <h2>🛠️ Modo desenvolvedor ligado</h2>
+          <p className="muted">Todas as cidades ganham botões para estudar 10 palavras novas e enfrentar o chefão a qualquer hora, sem as travas. No chefão, a resposta aparece em amarelo.</p>
+          <button className="button" onClick={() => setDevMode(false)}>Desligar</button>
+        </div>
+      )}
+      <p className="version muted" onClick={tap}>WordTrip · versão piloto</p>
+    </>
   )
 }

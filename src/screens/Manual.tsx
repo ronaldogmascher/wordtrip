@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom'
 import HowItWorks from '../components/HowItWorks.tsx'
 import TrafficLight from '../components/TrafficLight.tsx'
+import { LEGS } from '../content/legs.ts'
 import { BOSS_PASS_SHARE, BORDER_BOSS_QUESTIONS, BOSS_RETRY_HOURS, CITY_BOSS_QUESTIONS } from '../game/boss.ts'
 import { PENALTY, WRONG_ANSWER_CAP } from '../study/scoring.ts'
 import { RECOVERY_OFF, RECOVERY_ON, REVIEWS_PER_NEW } from '../study/session.ts'
@@ -15,6 +16,20 @@ export default function Manual() {
       <div className="card">
         <h2>Em resumo</h2>
         <HowItWorks />
+      </div>
+
+      <div className="card">
+        <h2>🗺️ A rota: do A1 ao B2</h2>
+        <p>A viagem tem quatro trechos, um para cada nível do Quadro Europeu (CEFR). Cada trecho termina numa fronteira com um chefão especial.</p>
+        <ol className="legs">
+          {LEGS.map((leg) => (
+            <li key={leg.cefr}>
+              <strong>{leg.cefr} · {leg.name}</strong> <span className="muted">· cerca de {leg.words.toLocaleString('pt-BR')} palavras no total</span>
+              <p className="muted">{leg.places}</p>
+            </li>
+          ))}
+        </ol>
+        <p className="muted">Por enquanto o app traz o trecho A1 completo; os próximos chegam nas próximas versões.</p>
       </div>
 
       <div className="card manual">
@@ -56,6 +71,10 @@ export default function Manual() {
         <details>
           <summary>📓 Diário de bordo</summary>
           <p>Achou uma palavra em inglês por aí? Anote no Diário. Se ela já existe na rota, é estudada antes ("encontrada na estrada"). Se não existe, você cria o card. Também dá para importar um texto (um "Desvio") e estudar as palavras dele.</p>
+        </details>
+        <details>
+          <summary>🛡️ Seguro do motorhome (backup)</summary>
+          <p>Tudo fica guardado só neste aparelho. Em Ajustes → Seguro do motorhome você salva um arquivo com toda a sua viagem e pode carregá-lo depois, no mesmo celular ou em outro. O app lembra de renovar o seguro (semanal por padrão; dá para mudar ou desligar).</p>
         </details>
         <details>
           <summary>🏋️ Academia</summary>

@@ -5,11 +5,12 @@ import { playCorrect, playWrong } from '../audio/effects.ts'
 import Flag from '../components/Flag.tsx'
 import Postcard from '../components/Postcard.tsx'
 import { cities, phases } from '../content/index.ts'
-import { db, getSettings } from '../db/db.ts'
+import { db, getSettings, type StudyCard } from '../db/db.ts'
 import { bossPool, hasPassed, isBorder, makeBossQuestions, MOTORHOME_UPGRADES, nextTryAt, passMark, questionCount, type BossQuestion } from '../game/boss.ts'
 import { routeProgress } from '../game/progress.ts'
 import { checkAnswer, type AnswerCheck } from '../study/answer.ts'
 import { timeUntil } from '../study/when.ts'
+import { useDevMode } from '../dev.ts'
 
 // City boss: written questions with no translation and no hint. Win with 80% to unlock the next
 // city and earn its postcard; the border boss (last city of the leg) also upgrades the motorhome.
@@ -22,6 +23,7 @@ export default function Boss() {
   const [questions, setQuestions] = useState<BossQuestion[] | null>(null)
   const [answers, setAnswers] = useState<Answer[]>([])
   const [result, setResult] = useState<{ passed: boolean; correct: number } | null>(null)
+  const dev = useDevMode()
 
   const data = useLiveQuery(async () => {
     const [cards, attempts, reward] = await Promise.all([db.cards.toArray(), db.bossAttempts.toArray(), phaseId ? db.rewards.get(phaseId) : undefined])
@@ -61,6 +63,7 @@ export default function Boss() {
         number={answers.length + 1}
         total={questions.length}
         rightSoFar={answers.filter((a) => a.check !== 'wrong').length}
+        dev={dev}
         onAnswer={(a) => {
           const all = [...answers, a]
           setAnswers(all)
@@ -73,7 +76,8 @@ export default function Boss() {
   const progress = data.progress.find((p) => p.city.phaseId === city.phaseId)
   const { now } = data
   const tryAt = nextTryAt(city.phaseId, data.attempts, now)
-  const pool = bossPool(city, cities, phases, data.cards)
+  // Developer mode asks every word of the city (or leg), studied or not.
+  const pool = bossPool(city, cities, phases, dev ? allRouteCards(city) : data.cards)
   const count = Math.min(questionCount(city, cities), pool.length)
 
   return (
@@ -91,7 +95,9 @@ export default function Boss() {
           {border && <li>Vencendo, o motorhome ganha um upgrade: {MOTORHOME_UPGRADES[0].icon} {MOTORHOME_UPGRADES[0].name}.</li>}
         </ul>
         {data.reward && !data.reward.claimedAt && <p>🎁 Sua recompensa ao vencer: <strong>{data.reward.text}</strong></p>}
-        {tryAt === null ? (
+        {dev ? (
+          <button className="primary" onClick={() => setQuestions(makeBossQuestions(pool, count))}>🛠️ Enfrentar (modo desenvolvedor)</button>
+        ) : tryAt === null ? (
           <p>🏁 Você já venceu este chefão.</p>
         ) : !progress?.bossReady ? (
           <p className="muted">O chefão aparece quando 80% das palavras da cidade estiverem amarelas ou verdes. Agora: {Math.round((progress?.share ?? 0) * 100)}%.</p>
@@ -106,8 +112,14 @@ export default function Boss() {
   )
 }
 
-function BossQuestionCard({ title, question, number, total, rightSoFar, onAnswer }: {
-  title: string; question: BossQuestion; number: number; total: number; rightSoFar: number; onAnswer: (a: Answer) => void
+/** Stand-in cards so the boss pool includes every word of the city (or the whole leg). */
+function allRouteCards(city: (typeof cities)[number]) {
+  const ids = isBorder(city, cities) ? cities.map((c) => c.phaseId) : [city.phaseId]
+  return phases.filter((p) => ids.includes(p.id)).flatMap((p) => p.senses).map((s) => ({ senseId: s.id }) as StudyCard)
+}
+
+function BossQuestionCard({ title, question, number, total, rightSoFar, dev, onAnswer }: {
+  title: string; question: BossQuestion; number: number; total: number; rightSoFar: number; dev: boolean; onAnswer: (a: Answer) => void
 }) {
   const [typed, setTyped] = useState('')
   const [check, setCheck] = useState<AnswerCheck | null>(null)
@@ -130,6 +142,7 @@ function BossQuestionCard({ title, question, number, total, rightSoFar, onAnswer
           <span className={`gap ${check ? (check === 'wrong' ? 'gap-wrong' : 'gap-ok') : ''}`}>{check ? question.answer : '____'}</span>
           {after}
         </p>
+        {dev && check === null && <p className="dev-note">🛠️ Resposta: {question.answer}</p>}
         {check === null ? (
           <form className="typing" onSubmit={(e) => { e.preventDefault(); void submit() }}>
             <input autoFocus autoCapitalize="off" autoCorrect="off" spellCheck={false} value={typed}
