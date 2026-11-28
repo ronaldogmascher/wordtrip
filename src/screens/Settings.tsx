@@ -89,6 +89,19 @@ export default function Settings() {
           </div>
 
           <div className="card settings-group">
+            <h2>🌱 Modo iniciante</h2>
+            <label className="toggle">
+              <input
+                type="checkbox"
+                checked={settings.beginnerMode}
+                onChange={(e) => update({ beginnerMode: e.target.checked })}
+              />
+              Tradução da definição já aberta em todo card
+            </label>
+            <p className="muted">Ligado, a tradução aparece desde o início e não desconta na nota. Desligado, o botão Traduzir volta a descontar (−3), o que deixa o agendamento das revisões mais preciso. Desligue quando já entender a maioria das definições em inglês.</p>
+          </div>
+
+          <div className="card settings-group">
             <h2>Sons</h2>
             <label className="toggle">
               <input

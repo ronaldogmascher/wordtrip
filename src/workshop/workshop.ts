@@ -46,7 +46,8 @@ export function workshopReason(
 ): WorkshopReason | null {
   if (weakCount < MIN_WEAK_WORDS) return null
   if (!last) return 'first'
-  if (bosses.some((b) => b.passed && b.at > last.at)) return 'city'
+  // Only city bosses count (not the driving test or the placement test).
+  if (bosses.some((b) => b.passed && b.at > last.at && b.phaseId.startsWith('en:'))) return 'city'
   if (now.getTime() - last.at.getTime() >= DAYS_BETWEEN_WORKSHOPS * DAY) return 'monthly'
   return null
 }

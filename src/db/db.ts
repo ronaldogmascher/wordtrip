@@ -9,6 +9,9 @@ export type CharacterChoice = 'male' | 'female'
 export type PetChoice = 'dog' | 'cat' | 'none'
 export type Accent = 'US' | 'UK'
 
+/** Self-reported level: 'zero' and 'pre' start at the Autoescola; 'intermediate' and 'advanced' get a placement test. */
+export type EnglishLevel = 'zero' | 'pre' | 'beginner' | 'intermediate' | 'advanced'
+
 export interface Profile {
   id: 'me'
   name: string
@@ -18,6 +21,8 @@ export interface Profile {
   motorhomeName: string
   /** Where the trip starts (phase 1), chosen on first launch. */
   homeCity?: string
+  /** English level the traveler reported on first launch; decides where the trip starts. */
+  level?: EnglishLevel
   language: 'en'
   createdAt: Date
 }
@@ -38,6 +43,8 @@ export interface Settings {
   backupReminderDays: number
   /** When the last backup file was saved (or restored). */
   lastBackupAt?: Date
+  /** Modo iniciante: the definition's translation comes open on every card, with no penalty. */
+  beginnerMode: boolean
 }
 
 export const DEFAULT_SETTINGS: Settings = {
@@ -50,6 +57,7 @@ export const DEFAULT_SETTINGS: Settings = {
   recoveryActive: false,
   soundEffects: true,
   backupReminderDays: 7,
+  beginnerMode: false,
 }
 
 /** How a sense is answered: multiple choice first, typing once it is mastered. */
@@ -181,6 +189,14 @@ export interface Mnemonic {
   updatedAt: Date
 }
 
+/** An Autoescola lesson the learner has done: best score, and when it was first passed. */
+export interface SchoolLesson {
+  id: string
+  best: number
+  total: number
+  passedAt?: Date
+}
+
 /** One Oficina (reinforcement workshop) session, kept to know when to suggest the next one. */
 export interface WorkshopSession {
   id?: number
@@ -204,6 +220,7 @@ export class WordTripDB extends Dexie {
   ipaReviews!: EntityTable<IpaReview, 'id'>
   mnemonics!: EntityTable<Mnemonic, 'senseId'>
   workshops!: EntityTable<WorkshopSession, 'id'>
+  schoolLessons!: EntityTable<SchoolLesson, 'id'>
 
   constructor(name = 'wordtrip') {
     super(name)
@@ -228,6 +245,9 @@ export class WordTripDB extends Dexie {
     this.version(4).stores({
       mnemonics: 'senseId',
       workshops: '++id, at',
+    })
+    this.version(5).stores({
+      schoolLessons: 'id',
     })
   }
 }

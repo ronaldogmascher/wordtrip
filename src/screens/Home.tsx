@@ -6,6 +6,9 @@ import { phases } from '../content/index.ts'
 import { db, getSettings } from '../db/db.ts'
 import { nextTryAt } from '../game/boss.ts'
 import { routeCities } from '../game/route.ts'
+import { placementState } from '../game/placement.ts'
+import { hasLicense } from '../school/quiz.ts'
+import { NEEDS_LICENSE, OFFERS_PLACEMENT } from '../school/levels.ts'
 import { backupDue } from '../db/backup.ts'
 import { fuel, levelOf, routeProgress, totalKm } from '../game/progress.ts'
 import { pickWeakWords, workshopReason, type WorkshopReason } from '../workshop/workshop.ts'
@@ -33,6 +36,9 @@ export default function Home() {
     const now = new Date()
     const tryAt = current?.bossReady ? nextTryAt(current.city.phaseId, bosses, now) : null
     return { km, fuel: fuel(km), level: levelOf(km).level, current, profile, bossNow: tryAt !== null && tryAt <= now,
+      needsLicense: !!profile?.level && NEEDS_LICENSE.includes(profile.level) && !hasLicense(bosses),
+      offerPlacement: !!profile?.level && OFFERS_PLACEMENT.includes(profile.level) && placementState(bosses) === 'open'
+        && !bosses.some((b) => b.passed && b.phaseId.startsWith('en:')),
       insuranceDue: cards.length > 0 && backupDue(settings.backupReminderDays, settings.lastBackupAt, profile?.createdAt, now) }
   })
 
@@ -62,7 +68,23 @@ export default function Home() {
         )}
       </header>
 
-      <div className="card">
+      {trip?.needsLicense && (
+        <div className="card school-gate">
+          <h2>🚗 Primeiro, a Autoescola</h2>
+          <p>Antes de pegar a estrada, tire a sua carteira de motorista: faça as aulas iniciais (alfabeto, cumprimentos, números…) e passe na prova da CNH. Aí o mapa e a primeira cidade abrem.</p>
+          <Link className="button primary" to="/autoescola">Ir para a Autoescola</Link>
+        </div>
+      )}
+
+      {trip?.offerPlacement && (
+        <div className="card school-gate">
+          <h2>📝 Prova de nivelamento</h2>
+          <p>Já sabe o básico? Passe na prova do trecho A1 e as cidades do Brasil ficam concluídas. São 2 tentativas.</p>
+          <Link className="button primary" to="/nivelamento">Fazer a prova</Link>
+        </div>
+      )}
+
+      {!trip?.needsLicense && <div className="card">
         <h2>Plano de hoje <InfoIcon>As <strong>revisões</strong> são palavras que já viu e que o app calculou que está na hora de relembrar, antes de esquecer. As <strong>novas</strong> são as próximas palavras da cidade atual, até o limite diário dos Ajustes. A "Sessão do dia" mistura as duas: uma nova a cada quatro revisões.</InfoIcon></h2>
         {plan ? (
           <>
@@ -93,7 +115,7 @@ export default function Home() {
         ) : (
           <p className="muted">Carregando…</p>
         )}
-      </div>
+      </div>}
 
       {trip?.bossNow && trip.current && (
         <div className="card boss-invite">
@@ -114,8 +136,10 @@ export default function Home() {
       {workshop && <WorkshopInvite reason={workshop} />}
 
       <div className="card">
-        <h2>🏋️ Academia <InfoIcon>Treinos livres que não mexem no calendário de revisões: números, horas e cores, pronúncia (IPA), tempos verbais e regrinhas, e a Oficina, que reforça as palavras que você mais erra.</InfoIcon></h2>
-        <p className="muted">Uma parada fora da rota para malhar os músculos do vocabulário. Sem limite diário: treine o que quiser, quando quiser.</p>
+        <h2>🚗 Autoescola <InfoIcon>As aulas iniciais ensinam o básico (alfabeto, cumprimentos, números…) e terminam na prova da CNH. A prática livre não mexe no calendário de revisões: números, horas e cores, pronúncia (IPA), tempos verbais e regrinhas, e a Oficina, que reforça as palavras que você mais erra.</InfoIcon></h2>
+        <p className="muted">Onde o viajante tira a carteira e volta para a reciclagem. Sem limite diário: treine o que quiser, quando quiser.</p>
+        <Link className="button" to="/autoescola">🪪 Aulas iniciais e prova da CNH</Link>
+        <h3>Prática livre</h3>
         <div className="gym-grid">
           <Link className="button" to="/numeros">🔢 Números, horas e cores</Link>
           <Link className="button" to="/ipa">🗣️ Trilha de IPA</Link>
