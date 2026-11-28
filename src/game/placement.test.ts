@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import { cities, phases } from '../content/index.ts'
+import { phases } from '../content/index.ts'
+import { citiesA1 as cities } from '../content/en/journey.ts'
 import { PLACEMENT_ID, placementState, skippedCards } from './placement.ts'
 
 const now = new Date('2026-11-28T12:00:00Z')

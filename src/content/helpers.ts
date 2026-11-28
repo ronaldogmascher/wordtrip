@@ -62,3 +62,7 @@ export function sense(lemma: string, pos: PartOfSpeech, ipaUS: string, ipaUK: st
     area: f.area ?? 'general',
   }
 }
+
+/** `sense` with a fixed level, for the phases of one leg (A2, B1, B2). */
+export const senseAt = (cefr: Cefr) => (lemma: string, pos: PartOfSpeech, ipaUS: string, ipaUK: string, f: SenseFields): Sense =>
+  sense(lemma, pos, ipaUS, ipaUK, { cefr, ...f })
