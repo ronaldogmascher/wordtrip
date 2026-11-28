@@ -1,4 +1,5 @@
 import { useLiveQuery } from 'dexie-react-hooks'
+import Flag from '../components/Flag.tsx'
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { playCorrect, playWrong } from '../audio/effects.ts'
@@ -125,7 +126,7 @@ function WordHeader({ sense, accent }: { sense: Sense; accent: Accent }) {
       <strong className="lemma">{sense.lemma}</strong>
       <span className="ipa">/{accent === 'US' ? sense.ipaUS : sense.ipaUK}/</span>
       {canSpeak() && <button className="say" onClick={() => speak(sense.lemma, accent)}>🔊</button>}
-      <p className="translation">🇧🇷 {sense.translationPt}</p>
+      <p className="translation"><Flag country="BR" /> {sense.translationPt}</p>
     </div>
   )
 }
@@ -245,7 +246,7 @@ function Dictation({ sense, accent, onAnswer, onNext }: {
         <div className="reveal">
           <p className={`verdict ${result ? 'ok' : 'wrong'}`}>{result ? '✔ Isso!' : `✘ Era "${example.answer}"`}</p>
           <p className="sentence">{full}</p>
-          <p className="translation">🇧🇷 {example.pt}</p>
+          <p className="translation"><Flag country="BR" /> {example.pt}</p>
           <button className="button primary" onClick={onNext}>Continuar</button>
         </div>
       )}

@@ -7,6 +7,7 @@ import { nextTryAt } from '../game/boss.ts'
 import { LESSONS, type Lesson } from '../school/lessons.ts'
 import { EXAM_ID, EXAM_PASS_SHARE, EXAM_QUESTIONS, hasLicense, LESSON_PASS_SHARE, makeExam, makeLessonQuiz, passed, type SchoolQuestion } from '../school/quiz.ts'
 import { canSpeak, speak } from '../study/speech.ts'
+import { schoolIpa } from '../school/ipa.ts'
 import { timeUntil } from '../study/when.ts'
 
 // Autoescola: first lessons (alphabet, greetings, numbers…) and the driving test that opens the
@@ -192,6 +193,7 @@ function QuizRun({ title, questions, share, accent, soundEffects, onFinish, pass
 
   const answered = picked !== null
   const right = picked === q.answer
+  const ipa = schoolIpa(q.item.en, accent)
   const choose = (option: string) => {
     if (answered) return
     setPicked(option)
@@ -245,6 +247,13 @@ function QuizRun({ title, questions, share, accent, soundEffects, onFinish, pass
           <div className="reveal">
             <p className={`verdict ${right ? 'ok' : 'wrong'}`}>{right ? '✔ Correto!' : `✘ A resposta era "${q.answer}"`}</p>
             <p className="big-prompt school-prompt"><span aria-hidden="true">{q.item.emoji}</span> <strong>{q.item.en}</strong>{q.item.pt !== q.item.en && <> = {q.item.pt}</>}</p>
+            {ipa && <p className="ipa school-ipa">{ipa}</p>}
+            {canSpeak() && (
+              <div className="row center">
+                <button onClick={() => speak(q.item.en, accent)}>🔊 Ouvir de novo</button>
+                <button onClick={() => speak(q.item.en, accent, true)}>🐢 Devagar</button>
+              </div>
+            )}
             <button className="button primary" onClick={() => void next()}>{index + 1 >= questions.length ? 'Ver resultado' : 'Continuar'}</button>
           </div>
         )}

@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import Flag from '../components/Flag.tsx'
 import { Link } from 'react-router-dom'
 import { playCorrect, playWrong } from '../audio/effects.ts'
 import { getSettings, type Accent } from '../db/db.ts'
@@ -42,7 +43,7 @@ export default function Grammar() {
   if (!session) {
     return (
       <section className="screen">
-        <p className="eyebrow">🏋️ Academia</p>
+        <p className="eyebrow">🚗 Autoescola · Prática livre</p>
         <h1>📝 Treino de gramática</h1>
         <p className="muted">Pratique os tempos verbais com os verbos da sua rota e as regrinhas que mais confundem (in/on/at, a/an…). Escolha um ou mais temas e misture à vontade.</p>
         <div className="card settings-group">
@@ -168,7 +169,7 @@ function Question({ question, mode, accent, soundEffects, onNext }: {
             {result ? '✔ Correto!' : `✘ ${typed.trim() ? `Você respondeu "${label(typed)}". ` : ''}A resposta era "${label(question.answer)}"`}
           </p>
           <p className="sentence">{question.full}</p>
-          <p className="translation">🇧🇷 {question.translation}</p>
+          <p className="translation"><Flag country="BR" /> {question.translation}</p>
           {canSpeak() && (
             <div className="audio-row">
               <button onClick={() => speak(question.full, accent)}>🔊 Ouvir</button>
