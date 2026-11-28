@@ -1,9 +1,9 @@
 import type { City } from '../types.ts'
 
-// The A1 leg of the journey: 12 Brazilian cities, ending at the border in Foz do Iguaçu.
+// The A1 leg of the journey: the traveler's home (phase 1) and 11 Brazilian cities, ending at the border in Foz do Iguaçu.
 // Later legs (A2 Latin America, B1 West Coast USA, B2 crossing to New York) are added later.
 export const citiesA1: City[] = [
-  { phaseId: 'en:a1:01', number: 1, name: 'Santo André', region: 'SP', landmark: 'Ponto de partida', icon: '🏠', available: true },
+  { phaseId: 'en:a1:01', number: 1, name: 'Sua cidade', region: '', landmark: 'Ponto de partida', icon: '🏠', available: true },
   { phaseId: 'en:a1:02', number: 2, name: 'São Paulo', region: 'SP', landmark: 'Avenida Paulista', icon: '🏙️', available: true },
   { phaseId: 'en:a1:03', number: 3, name: 'Rio de Janeiro', region: 'RJ', landmark: 'Cristo Redentor', icon: '🏖️', available: true },
   { phaseId: 'en:a1:04', number: 4, name: 'Ouro Preto', region: 'MG', landmark: 'Igrejas barrocas', icon: '⛪', available: true },

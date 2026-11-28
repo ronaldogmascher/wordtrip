@@ -203,7 +203,7 @@ function CardView({ item, accent, soundEffects, onDone }: {
       </div>
 
       <p className="definition"><TappableText text={sense.definition} onWord={setLookup} /></p>
-      {usedTranslation && <p className="translation"><Flag country="BR" /> {sense.definitionPt}</p>}
+      {(usedTranslation || answered) && sense.definitionPt && <p className="translation"><Flag country="BR" /> {sense.definitionPt}</p>}
 
       <p className="sentence">
         <TappableText text={before} onWord={setLookup} />

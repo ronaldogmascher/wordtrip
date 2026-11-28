@@ -2,9 +2,10 @@ import { useLiveQuery } from 'dexie-react-hooks'
 import { Link } from 'react-router-dom'
 import Info, { InfoIcon } from '../components/Info.tsx'
 import TrafficLight from '../components/TrafficLight.tsx'
-import { cities, phases } from '../content/index.ts'
+import { phases } from '../content/index.ts'
 import { db, getSettings } from '../db/db.ts'
 import { nextTryAt } from '../game/boss.ts'
+import { routeCities } from '../game/route.ts'
 import { backupDue } from '../db/backup.ts'
 import { fuel, levelOf, routeProgress, totalKm } from '../game/progress.ts'
 import { pickWeakWords, workshopReason, type WorkshopReason } from '../workshop/workshop.ts'
@@ -28,7 +29,7 @@ export default function Home() {
   const trip = useLiveQuery(async () => {
     const [days, cards, bosses, profile, settings] = await Promise.all([db.days.toArray(), db.cards.toArray(), db.bossAttempts.toArray(), db.profile.get('me'), getSettings()])
     const km = totalKm(days)
-    const current = routeProgress(cities, phases, cards, bosses).find((p) => p.status === 'current')
+    const current = routeProgress(routeCities(profile?.homeCity), phases, cards, bosses).find((p) => p.status === 'current')
     const now = new Date()
     const tryAt = current?.bossReady ? nextTryAt(current.city.phaseId, bosses, now) : null
     return { km, fuel: fuel(km), level: levelOf(km).level, current, profile, bossNow: tryAt !== null && tryAt <= now,
@@ -113,10 +114,10 @@ export default function Home() {
       {workshop && <WorkshopInvite reason={workshop} />}
 
       <div className="card">
-        <h2>🏋️ Academia <InfoIcon>Treinos livres que não mexem no calendário de revisões: números e horas, pronúncia (IPA), tempos verbais e regrinhas, e a Oficina, que reforça as palavras que você mais erra.</InfoIcon></h2>
+        <h2>🏋️ Academia <InfoIcon>Treinos livres que não mexem no calendário de revisões: números, horas e cores, pronúncia (IPA), tempos verbais e regrinhas, e a Oficina, que reforça as palavras que você mais erra.</InfoIcon></h2>
         <p className="muted">Uma parada fora da rota para malhar os músculos do vocabulário. Sem limite diário: treine o que quiser, quando quiser.</p>
         <div className="gym-grid">
-          <Link className="button" to="/numeros">🔢 Números e horas</Link>
+          <Link className="button" to="/numeros">🔢 Números, horas e cores</Link>
           <Link className="button" to="/ipa">🗣️ Trilha de IPA</Link>
           <Link className="button" to="/gramatica">📝 Gramática</Link>
           <Link className="button" to="/oficina">🔧 Oficina</Link>

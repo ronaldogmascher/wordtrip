@@ -4,8 +4,10 @@ import { Link, useParams } from 'react-router-dom'
 import { playCorrect, playWrong } from '../audio/effects.ts'
 import Flag from '../components/Flag.tsx'
 import Postcard from '../components/Postcard.tsx'
-import { cities, phases } from '../content/index.ts'
+import { phases } from '../content/index.ts'
+import { routeCities } from '../game/route.ts'
 import { db, getSettings, type StudyCard } from '../db/db.ts'
+import type { City } from '../content/types.ts'
 import { bossPool, hasPassed, isBorder, makeBossQuestions, MOTORHOME_UPGRADES, nextTryAt, passMark, questionCount, type BossQuestion } from '../game/boss.ts'
 import { routeProgress } from '../game/progress.ts'
 import { checkAnswer, type AnswerCheck } from '../study/answer.ts'
@@ -19,6 +21,8 @@ interface Answer { question: BossQuestion; typed: string; check: AnswerCheck }
 
 export default function Boss() {
   const { phaseId } = useParams()
+  const profile = useLiveQuery(() => db.profile.get('me'))
+  const cities = routeCities(profile?.homeCity)
   const city = cities.find((c) => c.phaseId === phaseId)
   const [questions, setQuestions] = useState<BossQuestion[] | null>(null)
   const [answers, setAnswers] = useState<Answer[]>([])
@@ -36,7 +40,7 @@ export default function Boss() {
   const border = isBorder(city, cities)
   const title = border ? `Chefão da fronteira · ${city.name}` : `Chefão de ${city.name}`
 
-  if (result) return <BossResult cityIndex={cities.indexOf(city)} border={border} answers={answers} passed={result.passed} correct={result.correct} reward={data.reward?.text} />
+  if (result) return <BossResult cities={cities} cityIndex={cities.indexOf(city)} border={border} answers={answers} passed={result.passed} correct={result.correct} reward={data.reward?.text} />
 
   if (questions) {
     const finish = async (all: Answer[]) => {
@@ -77,7 +81,7 @@ export default function Boss() {
   const { now } = data
   const tryAt = nextTryAt(city.phaseId, data.attempts, now)
   // Developer mode asks every word of the city (or leg), studied or not.
-  const pool = bossPool(city, cities, phases, dev ? allRouteCards(city) : data.cards)
+  const pool = bossPool(city, cities, phases, dev ? allRouteCards(city, cities) : data.cards)
   const count = Math.min(questionCount(city, cities), pool.length)
 
   return (
@@ -113,7 +117,7 @@ export default function Boss() {
 }
 
 /** Stand-in cards so the boss pool includes every word of the city (or the whole leg). */
-function allRouteCards(city: (typeof cities)[number]) {
+function allRouteCards(city: City, cities: City[]) {
   const ids = isBorder(city, cities) ? cities.map((c) => c.phaseId) : [city.phaseId]
   return phases.filter((p) => ids.includes(p.id)).flatMap((p) => p.senses).map((s) => ({ senseId: s.id }) as StudyCard)
 }
@@ -165,8 +169,8 @@ function BossQuestionCard({ title, question, number, total, rightSoFar, dev, onA
   )
 }
 
-function BossResult({ cityIndex, border, answers, passed, correct, reward }: {
-  cityIndex: number; border: boolean; answers: Answer[]; passed: boolean; correct: number; reward?: string
+function BossResult({ cities, cityIndex, border, answers, passed, correct, reward }: {
+  cities: City[]; cityIndex: number; border: boolean; answers: Answer[]; passed: boolean; correct: number; reward?: string
 }) {
   const city = cities[cityIndex]
   const next = cities[cityIndex + 1]

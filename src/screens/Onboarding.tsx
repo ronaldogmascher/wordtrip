@@ -8,6 +8,7 @@ import { CHARACTERS, PETS } from '../game/traveler.ts'
 export default function Onboarding() {
   const [step, setStep] = useState(0)
   const [name, setName] = useState('')
+  const [homeCity, setHomeCity] = useState('')
   const [character, setCharacter] = useState<CharacterChoice>('male')
   const [pet, setPet] = useState<PetChoice>('dog')
   const [petName, setPetName] = useState('')
@@ -16,10 +17,12 @@ export default function Onboarding() {
 
   async function finish() {
     const profile: Profile = {
-      id: 'me', name: name.trim(), character, pet, petName: pet === 'none' ? undefined : petName.trim() || undefined,
+      id: 'me', name: name.trim(), homeCity: homeCity.trim() || undefined, character, pet, petName: pet === 'none' ? undefined : petName.trim() || undefined,
       motorhomeName: motorhomeName.trim() || 'Motorhome', language: 'en', createdAt: new Date(),
     }
     const settings = await getSettings()
+    // Right after the setup, the app opens on the study tips.
+    window.location.hash = '#/dicas'
     await db.transaction('rw', db.profile, db.settings, async () => {
       await db.settings.put({ ...settings, newPerDay })
       await db.profile.put(profile)
@@ -45,6 +48,11 @@ export default function Onboarding() {
             Como você se chama?
             <input autoFocus value={name} onChange={(e) => setName(e.target.value)} placeholder="Seu nome" />
           </label>
+          <label className="field">
+            De qual cidade você parte?
+            <input value={homeCity} onChange={(e) => setHomeCity(e.target.value)} placeholder="Ex.: Santo André" />
+          </label>
+          <p className="muted">É a primeira parada da viagem. Depois a rota segue por São Paulo, Rio de Janeiro e outras cidades até Nova York.</p>
           <button className="button primary" disabled={!name.trim()} onClick={() => setStep(2)}>Continuar</button>
         </div>
       )}

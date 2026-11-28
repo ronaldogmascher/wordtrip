@@ -5,7 +5,7 @@ import {
 
 // Random practice questions for numbers, times, prices, dates, measures and spoken math.
 
-export type Category = 'numbers' | 'times' | 'prices' | 'dates' | 'measures' | 'math'
+export type Category = 'numbers' | 'times' | 'prices' | 'dates' | 'measures' | 'math' | 'colors'
 export type Level = 1 | 2 | 3
 
 export const CATEGORIES: { id: Category; label: string; icon: string }[] = [
@@ -15,6 +15,7 @@ export const CATEGORIES: { id: Category; label: string; icon: string }[] = [
   { id: 'dates', label: 'Datas', icon: '📅' },
   { id: 'measures', label: 'Medidas', icon: '📏' },
   { id: 'math', label: 'Contas', icon: '➗' },
+  { id: 'colors', label: 'Cores', icon: '🎨' },
 ]
 
 export const LEVELS: { id: Level; label: string }[] = [
@@ -41,6 +42,8 @@ export interface Exercise {
   /** The answer in words, shown and read after answering. */
   words: string
   tip?: string
+  /** Color questions: the CSS color painted on the card. */
+  swatch?: string
 }
 
 type Rng = () => number
@@ -196,6 +199,49 @@ function mathQuestion(rng: Rng, level: Level, uk: boolean): Exercise {
   }
 }
 
+/** Colors: [American spelling, British spelling, Portuguese, CSS color]. Basic ones first. */
+export const COLORS: [string, string, string, string][] = [
+  ['red', 'red', 'vermelho', '#dc2626'],
+  ['blue', 'blue', 'azul', '#2563eb'],
+  ['green', 'green', 'verde', '#16a34a'],
+  ['yellow', 'yellow', 'amarelo', '#facc15'],
+  ['black', 'black', 'preto', '#111111'],
+  ['white', 'white', 'branco', '#ffffff'],
+  ['orange', 'orange', 'laranja', '#f97316'],
+  ['pink', 'pink', 'rosa', '#f472b6'],
+  ['purple', 'purple', 'roxo', '#7e22ce'],
+  ['brown', 'brown', 'marrom', '#7c4a1e'],
+  ['gray', 'grey', 'cinza', '#9ca3af'],
+  // Level 2 and up
+  ['light blue', 'light blue', 'azul-claro', '#93c5fd'],
+  ['dark green', 'dark green', 'verde-escuro', '#14532d'],
+  ['navy blue', 'navy blue', 'azul-marinho', '#1e3a8a'],
+  ['beige', 'beige', 'bege', '#e8d8b8'],
+  ['gold', 'gold', 'dourado', '#d4a017'],
+  ['silver', 'silver', 'prateado', '#c0c0c0'],
+  ['turquoise', 'turquoise', 'turquesa', '#14b8a6'],
+  ['dark red', 'dark red', 'vermelho-escuro', '#7f1d1d'],
+  ['light green', 'light green', 'verde-claro', '#86efac'],
+]
+const BASIC_COLORS = 11
+
+/** Level 1: pick the name of a basic color. Level 2: more shades. Level 3: type the name. */
+function colorQuestion(rng: Rng, level: Level, uk: boolean): Exercise {
+  const pool = level === 1 ? COLORS.slice(0, BASIC_COLORS) : COLORS
+  const color = pick(rng, pool)
+  const name = (c: (typeof COLORS)[number]) => (uk ? c[1] : c[0])
+  const answer = name(color)
+  const base = { category: 'colors' as const, shown: '', swatch: color[3], words: `It's ${answer}.`, tip: `${answer} = ${color[2]}` }
+  if (level === 3) {
+    const spellings = new Set([color[0], color[1]])
+    return {
+      ...base, instruction: 'Que cor é esta? Digite o nome em inglês.', mode: 'type', answer,
+      check: (t) => spellings.has(t.trim().toLowerCase().replace(/-/g, ' ').replace(/\s+/g, ' ')),
+    }
+  }
+  return { ...base, instruction: 'Que cor é esta?', mode: 'choice', answer, options: choices(rng, answer, pool.map(name)) }
+}
+
 const GENERATORS: Record<Category, (rng: Rng, level: Level, uk: boolean) => Exercise> = {
   numbers: numberQuestion,
   times: (rng, level) => timeQuestion(rng, level),
@@ -203,6 +249,7 @@ const GENERATORS: Record<Category, (rng: Rng, level: Level, uk: boolean) => Exer
   dates: dateQuestion,
   measures: measureQuestion,
   math: mathQuestion,
+  colors: colorQuestion,
 }
 
 export function makeExercise(category: Category, level: Level, uk: boolean, rng: Rng = Math.random): Exercise {

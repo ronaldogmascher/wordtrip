@@ -40,7 +40,7 @@ export default function Numbers() {
     return (
       <section className="screen">
         <p className="eyebrow">🏋️ Academia</p>
-        <h1>🔢 Números e horas</h1>
+        <h1>🔢 Números, horas e cores</h1>
         <p className="muted">Treino livre de números, horas, preços, datas, medidas e contas faladas, com áudio. As perguntas mudam a cada sessão.</p>
         <div className="card settings-group">
           <h2>O que treinar</h2>
@@ -57,7 +57,7 @@ export default function Numbers() {
               <button key={l.id} aria-pressed={level === l.id} onClick={() => setLevel(l.id)}>{l.label}</button>
             ))}
           </div>
-          <p className="muted">Fácil: números até 100 e horas cheias. Médio: até 1.000 e de 5 em 5 minutos. Difícil: até 1 milhão e qualquer minuto.</p>
+          <p className="muted">Fácil: números até 100 e horas cheias. Médio: até 1.000 e de 5 em 5 minutos. Difícil: até 1 milhão e qualquer minuto. Cores: as básicas no fácil, mais tons no médio e digitando o nome no difícil.</p>
           <button className="button primary" onClick={start}>Começar ({SESSION_SIZE} perguntas)</button>
         </div>
       </section>
@@ -67,7 +67,7 @@ export default function Numbers() {
   if (index >= session.length) {
     return (
       <section className="screen">
-        <h1>🔢 Números e horas</h1>
+        <h1>🔢 Números, horas e cores</h1>
         <div className="card">
           <h2>Fim da sessão!</h2>
           <p><strong>{score}</strong> de {session.length} certas.</p>
@@ -130,6 +130,7 @@ function Question({ exercise, accent, soundEffects, onNext }: {
     <div className="card study">
       <p className="definition">{exercise.instruction}</p>
       {exercise.shown && <p className="big-prompt">{exercise.shown}</p>}
+      {exercise.swatch && <div className="swatch" style={{ background: exercise.swatch }} role="img" aria-label="Cor da pergunta" />}
       {exercise.speech && canSpeak() && (
         <div className="audio-row">
           <button onClick={() => speak(exercise.speech!, accent)}>🔊 Ouvir</button>
@@ -148,7 +149,8 @@ function Question({ exercise, accent, soundEffects, onNext }: {
           <input
             autoFocus
             // Times use a 00:00 mask, so the number pad is enough; prices need "." or ",".
-            inputMode={exercise.category === 'prices' ? 'decimal' : 'numeric'}
+            inputMode={exercise.category === 'prices' ? 'decimal' : exercise.category === 'colors' ? 'text' : 'numeric'}
+            autoCapitalize="off"
             autoComplete="off"
             className={exercise.category === 'times' ? 'time-input' : undefined}
             value={typed}

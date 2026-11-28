@@ -16,6 +16,8 @@ export interface Profile {
   pet: PetChoice
   petName?: string
   motorhomeName: string
+  /** Where the trip starts (phase 1), chosen on first launch. */
+  homeCity?: string
   language: 'en'
   createdAt: Date
 }

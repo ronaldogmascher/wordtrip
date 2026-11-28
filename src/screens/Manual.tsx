@@ -65,6 +65,10 @@ export default function Manual() {
           </ul>
         </details>
         <details>
+          <summary>🎁 Recompensas</summary>
+          <p>Ao chegar numa cidade, defina no mapa uma recompensa de verdade para quando vencer o chefão de lá: um açaí, um filme, um passeio, o que te motivar. Vale a pena fazer isso em toda cidade: ter um prêmio concreto à frente ajuda muito nos dias de preguiça. Quando você vence o chefão, a recompensa é liberada e vai para o Mural de conquistas, no fim do mapa.</p>
+        </details>
+        <details>
           <summary>🛣️ Km, combustível e nível</summary>
           <p>Cada card respondido faz o motorhome rodar: quanto melhor a nota, mais km. Os km nunca diminuem. Cada km vira 1 ⛽ de combustível, que em breve servirá para passeios bônus, personalizar o motorhome e proteger a sequência. O nível do viajante sobe com os km (100 km para o nível 2, mais 200 para o 3, e assim por diante).</p>
         </details>
@@ -78,10 +82,13 @@ export default function Manual() {
         </details>
         <details>
           <summary>🏋️ Academia</summary>
-          <p>Treinos livres, sem limite diário e sem mexer nas revisões: números e horas, a trilha de pronúncia (IPA), tempos verbais e regrinhas de gramática, e a Oficina, que reforça as palavras que você mais erra com âncoras, ditado e frases suas.</p>
+          <p>Treinos livres, sem limite diário e sem mexer nas revisões: números, horas e cores, a trilha de pronúncia (IPA), tempos verbais e regrinhas de gramática, e a Oficina, que reforça as palavras que você mais erra com âncoras, ditado e frases suas.</p>
         </details>
       </div>
-      <Link className="button" to="/">Voltar ao início</Link>
+      <div className="row">
+        <Link className="button" to="/dicas">🧭 Como estudar melhor</Link>
+        <Link className="button" to="/">Voltar ao início</Link>
+      </div>
     </section>
   )
 }

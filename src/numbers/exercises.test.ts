@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { CATEGORIES, makeExercise, makeSession, maskTime, parsePrice, type Level } from './exercises.ts'
+import { CATEGORIES, COLORS, makeExercise, makeSession, maskTime, parsePrice, type Level } from './exercises.ts'
 
 // Small deterministic random generator so the tests are repeatable.
 function seeded(seed: number) {
@@ -28,7 +28,7 @@ describe('exercises', () => {
       } else {
         expect(ex.check!(ex.answer), `${ex.category}: ${ex.answer}`).toBe(true)
         expect(ex.check!('')).toBe(false)
-        expect(ex.speech).toBeTruthy()
+        expect(ex.speech || ex.swatch).toBeTruthy()
       }
     }
   })
@@ -55,5 +55,23 @@ describe('maskTime', () => {
     const typed = makeSession(['times'], 1, false, 40).filter((e) => e.mode === 'type')
     expect(typed.length).toBeGreaterThan(0)
     for (const ex of typed) expect(ex.check!(maskTime(ex.answer.replace(/\D/g, '')))).toBe(true)
+  })
+})
+
+describe('colors', () => {
+  it('asks a basic color at level 1 with four options', () => {
+    const q = makeExercise('colors', 1, false, () => 0.3)
+    expect(q.swatch).toMatch(/^#/)
+    expect(q.options).toHaveLength(4)
+    expect(q.options).toContain(q.answer)
+  })
+  it('accepts both spellings of gray when typing', () => {
+    const q = makeExercise('colors', 3, false, () => 10 / 20)
+    expect(q.mode).toBe('type')
+    const grayIndex = COLORS.findIndex((c) => c[0] === 'gray')
+    const g = makeExercise('colors', 3, false, () => grayIndex / COLORS.length)
+    expect(g.check?.('Grey')).toBe(true)
+    expect(g.check?.('gray ')).toBe(true)
+    expect(g.check?.('green')).toBe(false)
   })
 })
