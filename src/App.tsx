@@ -1,6 +1,7 @@
 import { useLiveQuery } from 'dexie-react-hooks'
 import { NavLink, Route, Routes } from 'react-router-dom'
 import { db } from './db/db.ts'
+import Boss from './screens/Boss.tsx'
 import JourneyMap from './screens/Map.tsx'
 import Onboarding from './screens/Onboarding.tsx'
 import Dictionary from './screens/Dictionary.tsx'
@@ -45,6 +46,7 @@ export default function App() {
           <Route path="/" element={<Home />} />
           <Route path="/estudar" element={<Study />} />
           <Route path="/mapa" element={<JourneyMap />} />
+          <Route path="/chefao/:phaseId" element={<Boss />} />
           <Route path="/diario" element={<Journal />} />
           <Route path="/diario/completar/:id" element={<ExplorerForm />} />
           <Route path="/diario/desvio/novo" element={<DetourNew />} />

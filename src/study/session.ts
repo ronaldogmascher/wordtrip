@@ -1,9 +1,10 @@
 import { State } from 'ts-fsrs'
-import { allSenses, phases } from '../content/index.ts'
+import { allSenses, cities, phases } from '../content/index.ts'
 import type { Sense } from '../content/types.ts'
 import { db, getSettings, type ReviewEntry, type StudyCard } from '../db/db.ts'
 import { DETOUR_NEW_PER_SESSION } from '../detour/detour.ts'
 import { explorerSenses } from '../explorer/explorer.ts'
+import { unlockedPhaseIds } from '../game/progress.ts'
 import { newStudyCard, retrievability } from './scheduler.ts'
 
 // Backlog protection: above RECOVERY_ON overdue reviews new cards pause,
@@ -59,8 +60,10 @@ export async function unseenSenses(): Promise<NewSense[]> {
     .filter(({ entry, sense }) => entry.detourId === undefined && isUnseen(sense))
     .map(({ sense }) => ({ sense, source: 'explorer' }))
   const early = new Set(explorer.map((e) => e.sense.id))
-  // Phase unlocking (boss battles) comes later; for now every shipped phase is open.
+  // New route words come only from unlocked cities: the next one opens when a boss is beaten.
+  const open = unlockedPhaseIds(cities, await db.bossAttempts.toArray())
   const route: NewSense[] = phases
+    .filter((p) => open.has(p.id))
     .flatMap((p) => p.senses)
     .filter((s) => isUnseen(s) && !early.has(s.id))
     .map((sense) => ({ sense, source: 'route' }))
