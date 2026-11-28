@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import TrafficLight from '../components/TrafficLight.tsx'
 import { cities, phases } from '../content/index.ts'
 import { db } from '../db/db.ts'
+import { nextTryAt } from '../game/boss.ts'
 import { fuel, levelOf, routeProgress, totalKm } from '../game/progress.ts'
 import { pickWeakWords, workshopReason, type WorkshopReason } from '../workshop/workshop.ts'
 import { dayPlan, localDate } from '../study/session.ts'
@@ -26,7 +27,9 @@ export default function Home() {
     const [days, cards, bosses, profile] = await Promise.all([db.days.toArray(), db.cards.toArray(), db.bossAttempts.toArray(), db.profile.get('me')])
     const km = totalKm(days)
     const current = routeProgress(cities, phases, cards, bosses).find((p) => p.status === 'current')
-    return { km, fuel: fuel(km), level: levelOf(km).level, current, profile }
+    const now = new Date()
+    const tryAt = current?.bossReady ? nextTryAt(current.city.phaseId, bosses, now) : null
+    return { km, fuel: fuel(km), level: levelOf(km).level, current, profile, bossNow: tryAt !== null && tryAt <= now }
   })
 
   return (
@@ -81,6 +84,14 @@ export default function Home() {
           <p className="muted">Carregando…</p>
         )}
       </div>
+
+      {trip?.bossNow && trip.current && (
+        <div className="card boss-invite">
+          <h2>⚔️ O chefão de {trip.current.city.name} apareceu!</h2>
+          <p>Você já domina {Math.round(trip.current.share * 100)}% das palavras da cidade. Vença o chefão para seguir viagem.</p>
+          <Link className="button primary" to={`/chefao/${trip.current.city.phaseId}`}>Enfrentar o chefão</Link>
+        </div>
+      )}
 
       {workshop && <WorkshopInvite reason={workshop} />}
 

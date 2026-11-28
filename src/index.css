@@ -271,3 +271,17 @@ html, body { overflow-x: hidden; }
 .trail-counts .state-learning { color: var(--yellow); }
 .trail-counts .state-learned { color: var(--green); }
 .hero a { color: var(--primary); font-weight: 600; }
+
+/* Bosses, postcards and rewards */
+.boss-invite { border-color: var(--red); }
+.boss-intro ul { padding-left: 20px; }
+.trail-boss-button { margin-top: 8px; }
+.arrival { font-style: italic; }
+.reward { margin-top: 8px; text-align: left; }
+.reward input { margin-bottom: 8px; }
+.postcards { display: grid; gap: 8px; }
+.postcard { display: flex; gap: 12px; align-items: center; padding: 10px 12px; border-radius: 10px; border: 2px dashed var(--border); background: var(--bg); transform: rotate(-0.6deg); }
+.postcard:nth-child(even) { transform: rotate(0.6deg); }
+.postcard p { margin: 0; }
+.postcard-icon { font-size: 2rem; }
+.achievements, .missed { padding-left: 20px; }

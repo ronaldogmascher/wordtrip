@@ -67,3 +67,17 @@ export function routeProgress(cities: City[], phases: Phase[], cards: StudyCard[
     return { city, total, ...counts, share, bossReady: share >= BOSS_READY_SHARE, status }
   })
 }
+
+/**
+ * Phases whose new words can be studied: every city up to the current one. The next city opens
+ * when its previous city's boss is beaten.
+ */
+export function unlockedPhaseIds(cities: City[], bosses: BossAttempt[]): Set<string> {
+  const beaten = new Set(bosses.filter((b) => b.passed).map((b) => b.phaseId))
+  const open = new Set<string>()
+  for (const city of cities) {
+    open.add(city.phaseId)
+    if (!beaten.has(city.phaseId)) break
+  }
+  return open
+}
