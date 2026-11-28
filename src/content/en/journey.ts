@@ -6,11 +6,14 @@ import type { Cefr, City } from '../types.ts'
 
 type Stop = [name: string, region: string, landmark: string, icon: string]
 
-const leg = (cefr: Cefr, stops: Stop[], available = false): City[] =>
+/** How many cities of each leg already have their words in the app (counted from the start of the leg). */
+const SHIPPED: Partial<Record<Cefr, number>> = { A2: 3 }
+
+const leg = (cefr: Cefr, stops: Stop[]): City[] =>
   stops.map(([name, region, landmark, icon], i) => ({
     phaseId: `en:${cefr.toLowerCase()}:${String(i + 1).padStart(2, '0')}`,
     number: 0, // set below, counted along the whole trip
-    cefr, name, region, landmark, icon, available,
+    cefr, name, region, landmark, icon, available: i < (SHIPPED[cefr] ?? 0),
   }))
 
 export const citiesA1: City[] = [
