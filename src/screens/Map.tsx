@@ -14,8 +14,10 @@ import { routeCities } from '../game/route.ts'
 import { EXAM_ID, hasLicense } from '../school/quiz.ts'
 import { NEEDS_LICENSE } from '../school/levels.ts'
 import { useDevMode } from '../dev.ts'
+import { LEGS } from '../content/legs.ts'
 
-// The journey map: a trail (not geographic) from the traveler's home city to the border in Foz do Iguaçu.
+// The journey map: a trail (not geographic) from the traveler's home city to New York, in four legs.
+// The current leg is open; the others fold into a summary.
 // Finished cities show a flag, the current one pulses with the motorhome, the next ones wait.
 
 export default function JourneyMap() {
@@ -31,14 +33,18 @@ export default function JourneyMap() {
   const license = bosses.find((b) => b.phaseId === EXAM_ID && b.passed)
   const beatenAt = new Map(bosses.filter((b) => b.passed).map((b) => [b.phaseId, b.at]))
   const postcards = route.filter((c) => beatenAt.has(c.phaseId))
-  const upgrades = upgradesEarned([route], bosses)
+  const legs = LEGS.map((leg) => ({ leg, stops: progress.filter((p) => p.city.cefr === leg.cefr) }))
+  const upgrades = upgradesEarned(legs.map((l) => l.stops.map((p) => p.city)), bosses)
+  const currentCity = progress.find((p) => p.status === 'current')?.city
+  const currentLeg = LEGS.find((l) => l.cefr === (currentCity?.cefr ?? 'B2')) ?? LEGS[0]
+  const showAsLocked = (p: CityProgress) => (locked ? { ...p, status: 'ahead' as const, bossReady: false } : p)
   const claimed = rewards.filter((r) => r.claimedAt)
 
   return (
     <section className="screen">
-      <p className="eyebrow">Trecho 1 · A1 · Brasil</p>
+      <p className="eyebrow">Trecho {LEGS.indexOf(currentLeg) + 1} · {currentLeg.cefr} · {currentLeg.name}</p>
       <h1>🗺️ Mapa da jornada</h1>
-      <p className="muted">De {route[0].name === 'Sua cidade' ? 'sua cidade' : route[0].name} até a fronteira em Foz do Iguaçu. Quando {Math.round(BOSS_READY_SHARE * 100)}% das palavras de uma cidade estiverem amarelas ou verdes, o chefão da cidade aparece. Vencendo, a próxima cidade abre.</p>
+      <p className="muted">De {route[0].name === 'Sua cidade' ? 'sua cidade' : route[0].name} até Nova York: {route.length} cidades em 4 trechos, um por nível. Quando {Math.round(BOSS_READY_SHARE * 100)}% das palavras de uma cidade estiverem amarelas ou verdes, o chefão da cidade aparece. Vencendo, a próxima cidade abre.</p>
       {locked && (
         <div className="card school-gate">
           <h2>🚧 Estrada fechada para quem ainda não tem CNH</h2>
@@ -55,19 +61,21 @@ export default function JourneyMap() {
           </div>
         </div>
       )}
-      <ol className="trail">
-        {progress.map((p) => (
-          <CityStop key={p.city.phaseId} p={locked ? { ...p, status: 'ahead', bossReady: false } : p} bosses={bosses} now={now} reward={rewards.find((r) => r.phaseId === p.city.phaseId)}
-            traveler={profile ? `${characterIcon(profile.character)}${petIcon(profile.pet)}` : ''} motorhome={profile?.motorhomeName} />
-        ))}
-        <li className="trail-stop ahead">
-          <span className="trail-icon">🌎</span>
-          <div className="trail-body">
-            <strong>Próximo trecho: América Latina (A2)</strong>
-            <p className="muted">Buenos Aires, Lima, Machu Picchu, Cidade do México… chega depois da fronteira.</p>
-          </div>
-        </li>
-      </ol>
+      {legs.map(({ leg, stops }, i) => {
+        const done = stops.filter((p) => p.status === 'done').length
+        const trail = (
+          <ol className="trail">
+            {stops.map((p) => (
+              <CityStop key={p.city.phaseId} p={showAsLocked(p)} bosses={bosses} now={now} reward={rewards.find((r) => r.phaseId === p.city.phaseId)}
+                traveler={profile ? `${characterIcon(profile.character)}${petIcon(profile.pet)}` : ''} motorhome={profile?.motorhomeName} />
+            ))}
+          </ol>
+        )
+        const heading = <>Trecho {i + 1} · {leg.name} <span className="muted">· {leg.cefr} · {done} de {stops.length} cidades</span></>
+        return leg === currentLeg
+          ? <section key={leg.cefr} className="leg"><h2 className="leg-title">{heading}</h2>{trail}</section>
+          : <details key={leg.cefr} className="leg card"><summary className="leg-title">{heading}</summary>{trail}</details>
+      })}
 
       <div className="card">
         <h2>🚐 {profile?.motorhomeName ?? 'Seu motorhome'}</h2>
@@ -115,13 +123,14 @@ function CityStop({ p, bosses, now, reward, traveler, motorhome }: { p: CityProg
             <span className="muted"> · {preview.sample.join(', ')}…</span>
           </p>
         )}
+        {!city.available && <p className="muted">🚧 As palavras desta cidade chegam numa próxima versão do app.</p>}
         {status === 'current' && (
           <>
             <p className="trail-here">🚐 {motorhome ?? 'Seu motorhome'} está aqui {traveler}</p>
             {arrival && <p className="arrival">{arrival}</p>}
           </>
         )}
-        {(status === 'current' || p.learning + p.learned > 0) && (
+        {city.available && (status === 'current' || p.learning + p.learned > 0) && (
           <>
             <div className="trail-bar" role="progressbar" aria-valuenow={pct} aria-valuemin={0} aria-valuemax={100} aria-label={`${pct}% amarelas ou verdes`}>
               <span className="learned" style={{ width: `${(p.learned / p.total) * 100}%` }} />
@@ -135,14 +144,14 @@ function CityStop({ p, bosses, now, reward, traveler, motorhome }: { p: CityProg
             </p>
           </>
         )}
-        {status === 'current' && <RewardField phaseId={city.phaseId} reward={reward} />}
+        {status === 'current' && city.available && <RewardField phaseId={city.phaseId} reward={reward} />}
         {status === 'current' && p.bossReady && tryAt && (
           tryAt > now
             ? <p className="trail-boss">⏳ Revanche contra o chefão {timeUntil(tryAt, now)}.</p>
             : <Link className="button primary trail-boss-button" to={`/chefao/${city.phaseId}`}>⚔️ Enfrentar o chefão</Link>
         )}
         {status === 'done' && <p className="muted">🏁 Cidade concluída · cartão-postal conquistado</p>}
-        {dev && (
+        {dev && city.available && (
           <div className="row dev-row">
             <Link className="button" to={`/estudar?tipo=city&cidade=${city.phaseId}`}>🛠️ 10 novas</Link>
             <Link className="button" to={`/chefao/${city.phaseId}`}>🛠️ Chefão</Link>

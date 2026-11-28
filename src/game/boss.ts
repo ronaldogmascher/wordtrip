@@ -16,9 +16,9 @@ export const BOSS_RETRY_HOURS = 24
 
 /** Visual motorhome upgrades, one per border crossed (A1, A2, B1, B2). */
 export const MOTORHOME_UPGRADES = [
-  { icon: '🧳', name: 'Bagageiro no teto', text: 'Agora cabe mais bagagem para o resto da viagem.' },
-  { icon: '🚲', name: 'Suporte de bicicletas', text: 'Para passear pelas cidades da América Latina.' },
-  { icon: '☀️', name: 'Placas solares', text: 'Energia limpa para cruzar a costa oeste.' },
+  { icon: '🧳', name: 'Bagageiro no teto', text: 'Agora cabe mais bagagem para a América do Sul.' },
+  { icon: '🚲', name: 'Suporte de bicicletas', text: 'Para passear pela América Central, o México e os EUA.' },
+  { icon: '☀️', name: 'Placas solares', text: 'Energia limpa para o Canadá, o Alasca e a chegada a Nova York.' },
   { icon: '✨', name: 'Pintura nova', text: 'Pronto para chegar em grande estilo a Nova York.' },
 ]
 

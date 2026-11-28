@@ -1,5 +1,4 @@
-// The four legs of the journey, one per CEFR level. Only the A1 leg ships for now; the others
-// describe the plan (shown in the manual). Word counts are cumulative targets.
+// The four legs of the journey (80 cities, 50 words each), one per CEFR level. Shown in the manual. Word counts are cumulative targets.
 
 export interface Leg {
   cefr: 'A1' | 'A2' | 'B1' | 'B2'
@@ -11,7 +10,7 @@ export interface Leg {
 
 export const LEGS: Leg[] = [
   { cefr: 'A1', name: 'Brasil', words: 600, places: 'Sua cidade (ponto de partida), São Paulo, Rio de Janeiro, Ouro Preto, Salvador, Lençóis Maranhenses, Fernando de Noronha, Manaus, Pantanal, Bonito, Balneário Camboriú e Foz do Iguaçu (fronteira)' },
-  { cefr: 'A2', name: 'América Latina', words: 1200, places: 'Buenos Aires, Santiago, Lima, Machu Picchu, Colômbia, Panamá, Costa Rica e Cidade do México' },
-  { cefr: 'B1', name: 'Costa oeste dos EUA', words: 2500, places: 'San Diego, Los Angeles, Las Vegas, Grand Canyon, San Francisco e Seattle' },
-  { cefr: 'B2', name: 'Travessia até Nova York', words: 4000, places: 'Chicago, Nashville, Nova Orleans, Washington e, por fim, Nova York' },
+  { cefr: 'A2', name: 'América do Sul', words: 1200, places: 'Buenos Aires, Bariloche, Patagônia, Santiago, Atacama, Salar de Uyuni, Machu Picchu, Lima, Galápagos, Medellín, Cartagena e Canal do Panamá (fronteira)' },
+  { cefr: 'B1', name: 'América Central, México e EUA', words: 2500, places: 'Costa Rica, Tikal, Cancún, Tulum, Cidade do México, Acapulco, Houston, San Antonio, Nova Orleans, Miami, Key West, Orlando, Nashville, Memphis, Santa Fe, Grand Canyon, Monument Valley, Las Vegas, San Diego, Los Angeles, Big Sur, San Francisco, Yosemite, Portland, Seattle e Vancouver (fronteira)' },
+  { cefr: 'B2', name: 'Canadá, Alasca e Nova York', words: 4000, places: 'Anchorage, Denali, Juneau, Yukon, Banff, Lago Louise, Calgary, Yellowstone, Monte Rushmore, Denver, Chicago, Detroit, Toronto, Niágara, Ottawa, Montreal, Quebec, Boston, Salem, Cape Cod, Filadélfia, Washington, The Hamptons e o tour final por Nova York: Brooklyn, Estátua da Liberdade, Central Park, Broadway, Wall Street, Times Square e Empire State Building' },
 ]

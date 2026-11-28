@@ -10,8 +10,19 @@ describe('content', () => {
     expect(new Set(ids).size).toBe(ids.length)
   })
 
-  it('has 50 senses in each A1 phase', () => {
-    for (const p of phases.filter((p) => p.cefr === 'A1')) expect(p.senses).toHaveLength(50)
+  it('has 50 senses in every shipped phase', () => {
+    for (const p of phases) expect(p.senses, p.id).toHaveLength(50)
+  })
+
+  it('plans 80 cities in four legs, numbered in order', () => {
+    expect(cities).toHaveLength(80)
+    expect(['A1', 'A2', 'B1', 'B2'].map((cefr) => cities.filter((c) => c.cefr === cefr).length)).toEqual([12, 12, 26, 30])
+    cities.forEach((c, i) => expect(c.number).toBe(i + 1))
+    expect(new Set(cities.map((c) => c.phaseId)).size).toBe(80)
+  })
+
+  it('has content for every available city', () => {
+    for (const c of cities.filter((c) => c.available)) expect(phases.some((p) => p.id === c.phaseId), c.phaseId).toBe(true)
   })
 
   it('links every shipped phase to a city on the map', () => {

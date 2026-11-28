@@ -355,3 +355,7 @@ html, body { overflow-x: hidden; }
 
 .school-ipa { text-align: center; font-family: 'Charis SIL', 'Doulos SIL', 'Noto Sans', serif; font-size: 1.4rem; margin: 0 0 8px; }
 .row.center { justify-content: center; margin-bottom: 10px; }
+.leg { margin: 12px 0; }
+.leg-title { font-size: 1.05rem; margin: 8px 0 12px; }
+details.leg > summary { cursor: pointer; min-height: 44px; display: flex; align-items: center; }
+details.leg[open] > summary { margin-bottom: 12px; }

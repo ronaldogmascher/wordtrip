@@ -4,8 +4,9 @@ import { Link, useParams } from 'react-router-dom'
 import { playCorrect, playWrong } from '../audio/effects.ts'
 import Flag from '../components/Flag.tsx'
 import Postcard from '../components/Postcard.tsx'
-import { phases } from '../content/index.ts'
+import { legOf, phases } from '../content/index.ts'
 import { routeCities } from '../game/route.ts'
+import { LEGS } from '../content/legs.ts'
 import { db, getSettings, type StudyCard } from '../db/db.ts'
 import type { City } from '../content/types.ts'
 import { bossPool, hasPassed, isBorder, makeBossQuestions, MOTORHOME_UPGRADES, nextTryAt, passMark, questionCount, type BossQuestion } from '../game/boss.ts'
@@ -37,7 +38,9 @@ export default function Boss() {
   if (!city) return <section className="screen"><p>Cidade não encontrada.</p><Link to="/mapa">Voltar ao mapa</Link></section>
   if (!data) return <section className="screen"><p className="muted">Carregando…</p></section>
 
-  const border = isBorder(city, cities)
+  const leg = legOf(city, cities)
+  const legIndex = LEGS.findIndex((l) => l.cefr === city.cefr)
+  const border = isBorder(city, leg)
   const title = border ? `Chefão da fronteira · ${city.name}` : `Chefão de ${city.name}`
 
   if (result) {
@@ -86,8 +89,8 @@ export default function Boss() {
   const { now } = data
   const tryAt = nextTryAt(city.phaseId, data.attempts, now)
   // Developer mode asks every word of the city (or leg), studied or not.
-  const pool = bossPool(city, cities, phases, dev ? allRouteCards(city, cities) : data.cards)
-  const count = Math.min(questionCount(city, cities), pool.length)
+  const pool = bossPool(city, leg, phases, dev ? allRouteCards(city, leg) : data.cards)
+  const count = Math.min(questionCount(city, leg), pool.length)
 
   return (
     <section className="screen">
@@ -95,13 +98,13 @@ export default function Boss() {
       <h1>⚔️ {title}</h1>
       <div className="card boss-intro">
         <p>{border
-          ? `O último desafio do Brasil antes de cruzar a fronteira: ${count} perguntas com palavras de todas as cidades do trecho.`
+          ? `O último desafio do trecho ${LEGS[legIndex]?.name ?? ''} antes de cruzar a fronteira: ${count} perguntas com palavras de todas as cidades do trecho.`
           : `${count} perguntas escritas com as palavras de ${city.name}.`}</p>
         <ul>
           <li>Sem tradução e sem dica: só a definição em inglês e a frase.</li>
           <li>Acerte {passMark(count)} de {count} (80%) para vencer.</li>
           <li>Se perder, as palavras que errar voltam para revisão e você pode tentar de novo na hora. Depois de 2 derrotas seguidas, o chefão espera 24 horas pela revanche.</li>
-          {border && <li>Vencendo, o motorhome ganha um upgrade: {MOTORHOME_UPGRADES[0].icon} {MOTORHOME_UPGRADES[0].name}.</li>}
+          {border && <li>Vencendo, o motorhome ganha um upgrade: {MOTORHOME_UPGRADES[legIndex]?.icon} {MOTORHOME_UPGRADES[legIndex]?.name}.</li>}
         </ul>
         {data.reward && !data.reward.claimedAt && <p>🎁 Sua recompensa ao vencer: <strong>{data.reward.text}</strong></p>}
         {dev ? (
@@ -122,8 +125,8 @@ export default function Boss() {
 }
 
 /** Stand-in cards so the boss pool includes every word of the city (or the whole leg). */
-function allRouteCards(city: City, cities: City[]) {
-  const ids = isBorder(city, cities) ? cities.map((c) => c.phaseId) : [city.phaseId]
+function allRouteCards(city: City, leg: City[]) {
+  const ids = isBorder(city, leg) ? leg.map((c) => c.phaseId) : [city.phaseId]
   return phases.filter((p) => ids.includes(p.id)).flatMap((p) => p.senses).map((s) => ({ senseId: s.id }) as StudyCard)
 }
 
@@ -182,6 +185,7 @@ function BossResult({ cities, cityIndex, border, answers, passed, correct, rewar
 }) {
   const city = cities[cityIndex]
   const next = cities[cityIndex + 1]
+  const upgrade = MOTORHOME_UPGRADES[LEGS.findIndex((l) => l.cefr === city.cefr)]
   const nextPhase = next && phases.find((p) => p.id === next.phaseId)
   const missed = answers.filter((a) => a.check === 'wrong')
   return (
@@ -193,11 +197,13 @@ function BossResult({ cities, cityIndex, border, answers, passed, correct, rewar
           <>
             <Postcard icon={city.icon} name={city.name} landmark={city.landmark} />
             {reward && <p>🎁 Recompensa liberada: <strong>{reward}</strong>. Aproveite, você merece!</p>}
-            {border && <p>{MOTORHOME_UPGRADES[0].icon} Upgrade no motorhome: <strong>{MOTORHOME_UPGRADES[0].name}</strong>. {MOTORHOME_UPGRADES[0].text}</p>}
+            {border && upgrade && <p>{upgrade.icon} Upgrade no motorhome: <strong>{upgrade.name}</strong>. {upgrade.text}</p>}
             {next && nextPhase ? (
               <p>🚐 Próxima parada: <strong>{next.icon} {next.name}</strong>. {nextPhase.arrival}</p>
+            ) : next ? (
+              <p>🚧 Próxima parada: <strong>{next.icon} {next.name}</strong>. As palavras dessa cidade chegam numa próxima versão do app.</p>
             ) : (
-              <p>🌎 Fronteira cruzada! O próximo trecho, pela América Latina, chega numa próxima versão.</p>
+              <p>🗽 Você chegou a Nova York! A viagem inteira está completa.</p>
             )}
           </>
         ) : (

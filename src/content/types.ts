@@ -122,4 +122,6 @@ export interface City {
   icon: string
   /** True when this city's content ships in the current version. */
   available: boolean
+  /** The leg of the trip (one leg per level). */
+  cefr: Cefr
 }
