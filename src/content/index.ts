@@ -17,9 +17,12 @@ import { phase15 } from './en/phases/15-patagonia.ts'
 import { phase16 } from './en/phases/16-santiago.ts'
 import { phase17 } from './en/phases/17-atacama.ts'
 import { phase18 } from './en/phases/18-uyuni.ts'
+import { phase19 } from './en/phases/19-machu-picchu.ts'
+import { phase20 } from './en/phases/20-lima.ts'
+import { phase21 } from './en/phases/21-galapagos.ts'
 import type { City, Phase, Sense } from './types.ts'
 
-export const phases: Phase[] = [phase01, phase02, phase03, phase04, phase05, phase06, phase07, phase08, phase09, phase10, phase11, phase12, phase13, phase14, phase15, phase16, phase17, phase18]
+export const phases: Phase[] = [phase01, phase02, phase03, phase04, phase05, phase06, phase07, phase08, phase09, phase10, phase11, phase12, phase13, phase14, phase15, phase16, phase17, phase18, phase19, phase20, phase21]
 export const cities = allCities
 
 /** The cities of one leg (same level), in order: the last one is the border. */
