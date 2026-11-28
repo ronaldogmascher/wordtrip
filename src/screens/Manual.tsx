@@ -20,7 +20,7 @@ export default function Manual() {
 
       <div className="card">
         <h2>🗺️ A rota: do A1 ao B2</h2>
-        <p>A viagem tem quatro trechos, um para cada nível do Quadro Europeu (CEFR). Cada trecho termina numa fronteira com um chefão especial.</p>
+        <p>São 80 cidades, com 50 palavras cada uma, em quatro trechos, um para cada nível do Quadro Europeu (CEFR). Cada trecho termina numa fronteira com um chefão especial.</p>
         <ol className="legs">
           {LEGS.map((leg) => (
             <li key={leg.cefr}>
@@ -29,7 +29,7 @@ export default function Manual() {
             </li>
           ))}
         </ol>
-        <p className="muted">Por enquanto o app traz o trecho A1 completo; os próximos chegam nas próximas versões.</p>
+        <p className="muted">O mapa já mostra a viagem inteira. Por enquanto o trecho A1 está completo; as palavras das outras cidades chegam aos poucos, nas próximas versões. O trecho atual fica aberto no mapa, e os outros ficam recolhidos (toque para ver).</p>
       </div>
 
       <div className="card manual">

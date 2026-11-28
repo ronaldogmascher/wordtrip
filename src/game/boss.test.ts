@@ -1,6 +1,7 @@
 import { createEmptyCard, State } from 'ts-fsrs'
 import { describe, expect, it } from 'vitest'
-import { cities, phases } from '../content/index.ts'
+import { phases } from '../content/index.ts'
+import { citiesA1 as cities } from '../content/en/journey.ts'
 import type { BossAttempt, StudyCard } from '../db/db.ts'
 import { bossPool, hasPassed, isBorder, makeBossQuestions, nextTryAt, passMark, questionCount, upgradesEarned } from './boss.ts'
 import { unlockedPhaseIds } from './progress.ts'
