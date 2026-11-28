@@ -1,6 +1,7 @@
 import { useLiveQuery } from 'dexie-react-hooks'
 import { useState } from 'react'
-import { db, getSettings, type Settings as AppSettings } from '../db/db.ts'
+import { db, getSettings, type Profile, type Settings as AppSettings } from '../db/db.ts'
+import { CHARACTERS, PETS } from '../game/traveler.ts'
 import { PENALTY, WRONG_ANSWER_CAP } from '../study/scoring.ts'
 import { getTheme, setTheme, type ThemeChoice } from '../theme.ts'
 
@@ -33,6 +34,8 @@ export default function Settings() {
   return (
     <section className="screen">
       <h1>Ajustes</h1>
+
+      <TravelerCard />
 
       <div className="card settings-group">
         <h2>Tema</h2>
@@ -116,3 +119,41 @@ export default function Settings() {
   )
 }
 
+
+/** The traveler set up on first launch: name, character, pet and the motorhome's name. */
+function TravelerCard() {
+  const profile = useLiveQuery(() => db.profile.get('me'))
+  if (!profile) return null
+  const update = (patch: Partial<Profile>) => void db.profile.put({ ...profile, ...patch })
+  return (
+    <div className="card settings-group">
+      <h2>🚐 Viajante</h2>
+      <label className="field">
+        Seu nome
+        <input value={profile.name} onChange={(e) => update({ name: e.target.value })} />
+      </label>
+      <label className="field">
+        Nome do motorhome
+        <input value={profile.motorhomeName} onChange={(e) => update({ motorhomeName: e.target.value })} />
+      </label>
+      <Segmented
+        label="Personagem"
+        value={profile.character}
+        options={CHARACTERS.map((c) => ({ value: c.value, label: `${c.icon} ${c.label}` }))}
+        onChange={(character) => update({ character })}
+      />
+      <Segmented
+        label="Pet"
+        value={profile.pet}
+        options={PETS.map((p) => ({ value: p.value, label: `${p.icon} ${p.label}` }))}
+        onChange={(pet) => update({ pet })}
+      />
+      {profile.pet !== 'none' && (
+        <label className="field">
+          Nome do pet
+          <input value={profile.petName ?? ''} onChange={(e) => update({ petName: e.target.value })} />
+        </label>
+      )}
+    </div>
+  )
+}

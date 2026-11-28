@@ -240,3 +240,34 @@ button.primary.inline { margin-top: 0; }
 /* Nothing may make the page wider than the phone: a wide page lets the bottom bar slide away. */
 html, body { overflow-x: hidden; }
 .tabbar { z-index: 10; }
+.field { display: flex; flex-direction: column; gap: 6px; margin: 10px 0; font-weight: 600; }
+.field input { font: inherit; font-weight: 400; padding: 12px; border-radius: 12px; border: 1px solid var(--border); background: var(--surface); color: var(--text); }
+.choice-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 12px; }
+.choice-grid.three { grid-template-columns: repeat(3, 1fr); }
+.big-choice { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+.big-choice[aria-pressed="true"] { border-color: var(--primary); box-shadow: 0 0 0 2px var(--primary) inset; }
+.big-emoji { font-size: 2.2rem; }
+.trail { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 0; }
+.trail-stop { display: flex; gap: 12px; position: relative; padding-bottom: 18px; }
+.trail-stop:not(:last-child)::before { content: ''; position: absolute; left: 23px; top: 48px; bottom: 0; border-left: 3px dashed var(--border); }
+.trail-stop.done:not(:last-child)::before { border-left-style: solid; border-color: var(--green); }
+.trail-icon { flex: 0 0 48px; height: 48px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.6rem; background: var(--surface); border: 2px solid var(--border); }
+.trail-stop.current .trail-icon { border-color: var(--primary); animation: pulse 1.6s ease-in-out infinite; }
+.trail-stop.done .trail-icon { border-color: var(--green); }
+.trail-stop.ahead .trail-body { opacity: 0.75; }
+.trail-body { flex: 1; min-width: 0; background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 10px 12px; }
+.trail-stop.current .trail-body { border-color: var(--primary); }
+.trail-here { font-weight: 600; color: var(--primary); }
+.trail-bar { display: flex; height: 10px; border-radius: 999px; background: var(--bg); overflow: hidden; margin: 6px 0 4px; }
+.trail-bar .learned { background: var(--green); }
+.trail-bar .learning { background: var(--yellow); }
+.trail-counts { display: flex; flex-wrap: wrap; gap: 4px 10px; font-size: 0.9rem; }
+.trail-boss { font-weight: 600; }
+@keyframes pulse { 0%, 100% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--primary) 50%, transparent); } 50% { box-shadow: 0 0 0 8px transparent; } }
+@media (prefers-reduced-motion: reduce) { .trail-stop.current .trail-icon { animation: none; } }
+.trip-stats { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+.trip-stats span { background: var(--surface); border: 1px solid var(--border); border-radius: 999px; padding: 4px 10px; font-weight: 600; font-size: 0.9rem; }
+.trail-counts .state-discovering { color: var(--red); }
+.trail-counts .state-learning { color: var(--yellow); }
+.trail-counts .state-learned { color: var(--green); }
+.hero a { color: var(--primary); font-weight: 600; }

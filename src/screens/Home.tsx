@@ -1,7 +1,9 @@
 import { useLiveQuery } from 'dexie-react-hooks'
 import { Link } from 'react-router-dom'
 import TrafficLight from '../components/TrafficLight.tsx'
+import { cities, phases } from '../content/index.ts'
 import { db } from '../db/db.ts'
+import { fuel, levelOf, routeProgress, totalKm } from '../game/progress.ts'
 import { pickWeakWords, workshopReason, type WorkshopReason } from '../workshop/workshop.ts'
 import { dayPlan, localDate } from '../study/session.ts'
 
@@ -20,12 +22,31 @@ export default function Home() {
     return workshopReason(pickWeakWords(cards, reviews, now).length, last, bosses, now)
   })
 
+  const trip = useLiveQuery(async () => {
+    const [days, cards, bosses, profile] = await Promise.all([db.days.toArray(), db.cards.toArray(), db.bossAttempts.toArray(), db.profile.get('me')])
+    const km = totalKm(days)
+    const current = routeProgress(cities, phases, cards, bosses).find((p) => p.status === 'current')
+    return { km, fuel: fuel(km), level: levelOf(km).level, current, profile }
+  })
+
   return (
     <section className="screen">
       <header className="hero">
-        <p className="eyebrow">Fase 1 · Santo André</p>
-        <h1>Bem-vindo ao WordTrip 🚐</h1>
-        <p>Sua viagem de motorhome até a fluência em inglês começa aqui.</p>
+        <p className="eyebrow">
+          {trip?.current ? `Fase ${trip.current.city.number} · ${trip.current.city.name}` : 'Fronteira à vista'}
+        </p>
+        <h1>{trip?.profile ? `Olá, ${trip.profile.name}! 🚐` : 'Bem-vindo ao WordTrip 🚐'}</h1>
+        <p>
+          {trip?.profile ? `O ${trip.profile.motorhomeName} está pronto para mais um trecho.` : 'Sua viagem de motorhome até a fluência em inglês começa aqui.'}
+          {trip?.current && <> <Link to="/mapa">Ver no mapa</Link></>}
+        </p>
+        {trip && (
+          <div className="trip-stats">
+            <span title="Quilômetros rodados: cada resposta faz o motorhome andar">🛣️ {trip.km} km</span>
+            <span title="Combustível: cada km vira 1 ⛽">⛽ {trip.fuel}</span>
+            <span title="Nível do viajante, pelos km rodados">⭐ Nível {trip.level}</span>
+          </div>
+        )}
       </header>
 
       <div className="card">
@@ -43,7 +64,7 @@ export default function Home() {
             )}
             {today && (
               <p className="muted">
-                Hoje: {today.cardsReviewed} cards · {Math.round(today.activeSeconds / 60)} min · {today.xp} XP
+                Hoje: {today.cardsReviewed} cards · {Math.round(today.activeSeconds / 60)} min · {today.xp} km
               </p>
             )}
             <Link className="button primary" to="/estudar?tipo=mixed">Sessão do dia</Link>

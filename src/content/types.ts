@@ -118,6 +118,8 @@ export interface City {
   name: string
   region: string
   landmark: string
+  /** Emoji that stands for the city on the map until there are illustrations. */
+  icon: string
   /** True when this city's content ships in the current version. */
   available: boolean
 }
